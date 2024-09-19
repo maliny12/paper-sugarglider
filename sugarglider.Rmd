@@ -1,95 +1,175 @@
 ---
-title: "ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics"
-date: "2022-11-09"
+title: "sugarglider: Create glyphmaps of spatio-temporal data"
 abstract: >
-  An abstract of less than 150 words.
+  (An abstract of less than 150 words.)
 draft: true
 author:  
-  - name: Quietest Quokka
-    affiliation: University of Little Mates
+  - name: Maliny Po
+    affiliation: Monash University 
     address:
-    - Department of Letter Q
-    - Somewhere, Australia
-    url: https://www.britannica.com/animal/quokka
-    orcid: 0000-1721-1511-1101
-    email:  qquo@ulm.edu
-  - name: Bounciest Bilby
+    - Department of Econometrics and Business Statistics
+    - Melbourne, Australia
+    orcid: 0009-0008-4686-6631
+    email:  malinypo12@gmail.com
+  - name: Dianne Cook
     affiliation:
-    - University of Little Mates
-    - University of Aussie Animals
+    - Monash University
     address:
-    - Department of Letter Q, Somewhere, Australia
-    - Department of Marsupials, Somewhere, Australia
-    url: https://www.britannica.com/animal/bilby
-    email: bbil@ulm.edu
-    orcid: 0000-0002-0912-0225
+    - Department of Econometrics and Business Statistics
+    - Melbourne, Australia
+    email: dicook@monash.edu
+    orcid: 0000-0002-3813-7155
 type: package
 output: 
   rjtools::rjournal_article:
     self_contained: yes
     toc: no
-bibliography: RJreferences.bib
+bibliography: sugarglider-journal.bib
 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-library(plotly)
 library(ggplot2)
-library(palmerpenguins)
-library(kableExtra)
+library(tidyverse)
+library(sugarglider)
 ```
 
 # Introduction
 
-Interactive data graphics provides plots that allow users to interact them. One of the most basic types of interaction is through tooltips, where users are provided additional information about elements in the plot by moving the cursor over the plot.
-
-This paper will first review some R packages on interactive graphics and their tooltip implementations. A new package \CRANpkg{ToOoOlTiPs} that provides customized tooltips for plot, is introduced. Some example plots will then be given to showcase how these tooltips help users to better read the graphics. 
-
-# Background
-
-Some packages on interactive graphics include \CRANpkg{plotly} [@plotly] that interfaces with Javascript for web-based interactive graphics, \CRANpkg{crosstalk} [@crosstalk] that specializes cross-linking elements across individual graphics.  The recent R Journal paper \CRANpkg{tsibbletalk} [@RJ-2021-050] provides a good example of including interactive graphics into an article for the journal. It has both a set of linked plots, and also an animated gif example, illustrating linking between time series plots and feature summaries.
-
-# Customizing tooltip design with \pkg{ToOoOlTiPs}
-
-\pkg{ToOoOlTiPs} is a packages for customizing tooltips in interactive graphics, it features these possibilities.
-
-# A gallery of tooltips examples
-
-The \CRANpkg{palmerpenguins} data [@palmerpenguins]  features three penguin species which has a lovely illustration by Alison Horst in Figure \@ref(fig:penguins-alison). 
-
-```{r penguins-alison, out.width = "100%", out.height = "30%", fig.cap = "Artwork by \\@allison\\_horst", fig.alt="A picture of three different penguins with their species: Chinstrap, Gentoo, and Adelie. "}
-knitr::include_graphics("figures/penguins.png")
+```
+Note: use similar terminology as cubble & glyph-maps. Add a quick start (quick guide on how to use the sugarglider package)
 ```
 
-Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:penguins-tab-interactive)', '\\@ref(tab:penguins-tab-static)'))` prints at the first few rows of the `penguins` data:
 
-```{r penguins-tab-interactive, eval = knitr::is_html_output(), layout = "l-body-outset"}
-knitr::kable(head(penguins), format = "html", caption = "A basic table")
+
+
+
+
+# Literature Review
+
+### Glyph Maps
+
+```
+(Desperately need more resources)
 ```
 
-```{r penguins-tab-static, eval = knitr::is_latex_output()}
-knitr::kable(head(penguins), format = "latex", caption = "A basic table") %>% 
-  kableExtra::kable_styling(font_size = 7)
-```   
+-  Glyph maps are a specific type of multivariate glyph plots where each spatial location is represented by a glyph that encapsulates data measured over time at that location. As detailed in [Hadley Wickham's](https://vita.had.co.nz/papers/glyph-maps.pdf) paper, glyph maps are particularly effective for uncovering both local and global structures, emphasizing temporal relationships within the data. These maps utilize small glyphs or icons to represent multiple data values at each location, extending the concept of glyphs which are traditionally used to display multivariate data.
 
-Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:penguins-plotly)', '\\@ref(fig:penguins-ggplot)'))` shows an `r ifelse(knitr::is_html_output(), 'interactive', '')` plot of the penguins data, made using the `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\CRANpkg{plotly}', '\\CRANpkg{ggplot2}'))` package. 
+- Challenges with Faceted Maps and Spatio-Temporal Animations: While faceted maps and spatio-temporal animations are useful for highlighting spatial patterns, they often fall short in adequately showcasing temporal trends. To overcome this, a transformation technique is employed which utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as [GGally](https://cran.r-project.org/web/packages/GGally/GGally.pdf) and [cubble]( https://www.jstatsoft.org/article/view/v110i07), facilitating a more integrated approach to spatio-temporal data visualization.
 
-```{r penguins-plotly, echo = TRUE, fig.height = 5, fig.cap="A basic interactive plot made with the plotly package on palmer penguin data. Three species of penguins are plotted with bill depth on the x-axis and bill length on the y-axis. When hovering on a point, a tooltip will show the exact value of the bill depth and length for that point, along with the species name.", include=knitr::is_html_output(), eval=knitr::is_html_output(), fig.alt = "A scatterplot of bill length against bill depth, both measured in millimetre. The three species are shown in different colours and loosely forms three clusters. Adelie has small bill length and large bill depth, Gentoo has small bill depth but large bill length, and Chinstrap has relatively large bill depth and bill length."}
-p <- penguins %>% 
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm, 
-             color = species)) + 
-  geom_point()
-ggplotly(p)
+- The R package [cubble](https://www.jstatsoft.org/article/view/v110i07) introduces an innovative cubble class designed to efficiently organize spatial and temporal variables. This dual structure allows for separate or combined manipulation of these variables while maintaining synchronization. A spatial cubble object is constructed from distinct spatial and temporal tables through the function make_cubble(), requiring the specification of three attributes: key, index, and coords. This functionality not only simplifies the data wrangling process but also enhances the analytical capabilities when dealing with complex datasets.
+
+
+### Extending ggplot2 with ggproto
+
+```
+ Diversify your resources a bit :((
 ```
 
-```{r penguins-ggplot, echo = TRUE, fig.height = 5, fig.cap="A basic non-interactive plot made with the ggplot2 package on palmer penguin data. Three species of penguins are plotted with bill depth on the x-axis and bill length on the y-axis. Visit the online article to access the interactive version made with the plotly package.", include=knitr::is_latex_output(), eval=knitr::is_latex_output()}
-penguins %>% 
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm, 
-             color = species)) + 
-  geom_point()
+- Elegant Graphics for Data Analysis: The architecture of ggplot2 is fundamentally based on the ggproto system of object-oriented programming. Initially, ggplot2 utilized the proto system, developed by Grothendieck, Kates, and Petzoldt in 2016, for object-oriented tasks. This system, described in detail in the [Proto package documentation](https://cran.r-project.org/web/packages/proto/proto.pdf), 
+outlines that proto is an S3 subclass of the R environment class, implying single inheritance and mutable state characteristic of all environments. Proto objects are created and modified using the proto function which sets the parent environment, evaluates expressions, and handles lazy evaluation of arguments.
+
+However, as the need for an official extension mechanism in ggplot2 grew, the limitations of the proto system became apparent, leading to the adoption of ggproto. This transition is well-documented in Hadley Wickham’s book, [ggplot2: Elegant Graphics for Data Analysis](https://ggplot2-book.org/), which also introduces how to utilize ggproto objects to extend ggplot2 functionalities.
+
+The creation of a new ggproto object is facilitated by the ggproto() function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from `Stat` and `Geom.` However, merely creating a ggproto object does not make it accessible or useful to the end user.
+
+(Example from ggplot2-book.org)
+```
+NewObject <- ggproto(
+  `_class` = NULL, 
+  `_inherits` = NULL
+)
 ```
 
-# Summary
+To bridge this gap, the creation of a layer function is necessary. An example is the `new_stat()` function, which follows a consistent format: setting defaults in the function arguments, and calling layer(), which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics. This function exemplifies the methodology to create functional and user-accessible components in ggplot2.
 
-We have displayed various tooltips that are available in the package \pkg{ToOoOlTiPs}. 
+(Example from ggplot2-book.org)
+```
+new_stat <- function(mapping = NULL, data = NULL, 
+                       geom = "geometry", position = "identity", 
+                       na.rm = FALSE, show.legend = NA, 
+                       inherit.aes = TRUE, ...) {
+  layer(
+    stat = NewStat, 
+    data = data, 
+    mapping = mapping, 
+    geom = geom, 
+    position = position, 
+    show.legend = show.legend, 
+    inherit.aes = inherit.aes, 
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+While developing ggplot2 extensions, it may seem intuitive to encapsulate extensions as new geoms, as they are frequently used by users to add layers to a plot. However, the diversity in ggplot2’s capabilities often stems more from the variety in statistical transformations (stats) than merely geometric objects (geoms), suggesting a nuanced approach in designing extensions that effectively enhance the plotting system.
+
+
+
+
+# Software
+
+```
+Check out:  https://journal.r-project.org/articles/RJ-2023-013/
+Note: collect all the technical part in one section
+```
+
+### Data structure
+
+### Rescale
+
+### Spatial-temporal transformation
+
+### Aesthetics
+
+### Parameters
+
+### Interactivity
+
+## Examples
+
+
+
+
+
+
+
+
+# Application 
+
+Five examples are selected to demonstrate various features of the sugarglider package: (1) Creating a ribbon glyph map to visualize annual fluctuations in minimum and maximum daily patronage for each train station, revealing seasonal trends. (2) Using glyph segments to compare patronage on typical weekdays versus weekends at different stations, enabling insights for optimizing service schedules. (3) Utilizing glyph ribbons to represent variations in patronage during distinct peak periods—AM peak, interpeak, PM peak, and late PM hours—across stations. (4) Displaying differences in patronage across transportation modes (Metro, VLine, or both) using glyph segments, identifying capacity imbalances. Lastly, (5) Employing glyph ribbons to compare public and school holiday patronage against regular days, aiding in scheduling and resource planning.
+
+### Yearly Patronage Changes by Station
+
+
+### Weekday vs. Weekend Patronage
+
+
+### Patronage During Different Peak Times
+
+
+### Patronage Variations by Transportation Mode
+
+
+### Public and School Holiday Patronage vs. Regular Days
+
+
+
+
+# Discussion
+
+
+# Acknowledgements
+
+# References
+
+- Glyph-maps: https://vita.had.co.nz/papers/glyph-maps.pdf
+
+- cubble: https://www.jstatsoft.org/article/view/v110i07
+
+- Proto:  https://cran.r-project.org/web/packages/proto/proto.pdf
+
+- GGally: https://cran.r-project.org/web/packages/GGally/GGally.pdf
+
+- Elegant Graphics for Data Analysis: https://ggplot2-book.org/ 

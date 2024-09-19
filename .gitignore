@@ -50,3 +50,5 @@ rsconnect/
 
 
 *.log
+
+.DS_Store

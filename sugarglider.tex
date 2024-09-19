@@ -1,124 +1,184 @@
 % !TeX root = RJwrapper.tex
-\title{ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics}
+\title{sugarglider: Create glyphmaps of spatio-temporal data}
 
 
-\author{by Quietest Quokka and Bounciest Bilby}
+\author{by Maliny Po and Dianne Cook}
 
 \maketitle
 
 \abstract{%
-An abstract of less than 150 words.
+(An abstract of less than 150 words.)
 }
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-Interactive data graphics provides plots that allow users to interact them. One of the most basic types of interaction is through tooltips, where users are provided additional information about elements in the plot by moving the cursor over the plot.
-
-This paper will first review some R packages on interactive graphics and their tooltip implementations. A new package \CRANpkg{ToOoOlTiPs} that provides customized tooltips for plot, is introduced. Some example plots will then be given to showcase how these tooltips help users to better read the graphics.
-
-\hypertarget{background}{%
-\section{Background}\label{background}}
-
-Some packages on interactive graphics include \CRANpkg{plotly} (Sievert 2020) that interfaces with Javascript for web-based interactive graphics, \CRANpkg{crosstalk} (Cheng and Sievert 2021) that specializes cross-linking elements across individual graphics. The recent R Journal paper \CRANpkg{tsibbletalk} (Wang and Cook 2021) provides a good example of including interactive graphics into an article for the journal. It has both a set of linked plots, and also an animated gif example, illustrating linking between time series plots and feature summaries.
-
-\hypertarget{customizing-tooltip-design-with}{%
-\section{\texorpdfstring{Customizing tooltip design with \pkg{ToOoOlTiPs}}{Customizing tooltip design with }}\label{customizing-tooltip-design-with}}
-
-\pkg{ToOoOlTiPs} is a packages for customizing tooltips in interactive graphics, it features these possibilities.
-
-\hypertarget{a-gallery-of-tooltips-examples}{%
-\section{A gallery of tooltips examples}\label{a-gallery-of-tooltips-examples}}
-
-The \CRANpkg{palmerpenguins} data (Horst, Hill, and Gorman 2020) features three penguin species which has a lovely illustration by Alison Horst in Figure \ref{fig:penguins-alison}.
-
-\begin{figure}
-\includegraphics[width=1\linewidth,height=0.3\textheight]{figures/penguins} \caption{Artwork by \@allison\_horst}\label{fig:penguins-alison}
-\end{figure}
-
-Table \ref{tab:penguins-tab-static} prints at the first few rows of the \texttt{penguins} data:
-
-\begin{table}
-
-\caption{\label{tab:penguins-tab-static}A basic table}
-\centering
-\fontsize{7}{9}\selectfont
-\begin{tabular}[t]{l|l|r|r|r|r|l|r}
-\hline
-species & island & bill\_length\_mm & bill\_depth\_mm & flipper\_length\_mm & body\_mass\_g & sex & year\\
-\hline
-Adelie & Torgersen & 39.1 & 18.7 & 181 & 3750 & male & 2007\\
-\hline
-Adelie & Torgersen & 39.5 & 17.4 & 186 & 3800 & female & 2007\\
-\hline
-Adelie & Torgersen & 40.3 & 18.0 & 195 & 3250 & female & 2007\\
-\hline
-Adelie & Torgersen & NA & NA & NA & NA & NA & 2007\\
-\hline
-Adelie & Torgersen & 36.7 & 19.3 & 193 & 3450 & female & 2007\\
-\hline
-Adelie & Torgersen & 39.3 & 20.6 & 190 & 3650 & male & 2007\\
-\hline
-\end{tabular}
-\end{table}
-
-Figure \ref{fig:penguins-ggplot} shows an plot of the penguins data, made using the \CRANpkg{ggplot2} package.
-
 \begin{verbatim}
-penguins %>% 
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm, 
-             color = species)) + 
-  geom_point()
+Note: use similar terminology as cubble & glyph-maps. Add a quick start (quick guide on how to use the sugarglider package)
 \end{verbatim}
 
-\begin{figure}
-\centering
-\includegraphics{sugarglider_files/figure-latex/penguins-ggplot-1.pdf}
-\caption{\label{fig:penguins-ggplot}A basic non-interactive plot made with the ggplot2 package on palmer penguin data. Three species of penguins are plotted with bill depth on the x-axis and bill length on the y-axis. Visit the online article to access the interactive version made with the plotly package.}
-\end{figure}
+\hypertarget{literature-review}{%
+\section{Literature Review}\label{literature-review}}
 
-\hypertarget{summary}{%
-\section{Summary}\label{summary}}
+\hypertarget{glyph-maps}{%
+\subsubsection{Glyph Maps}\label{glyph-maps}}
 
-We have displayed various tooltips that are available in the package \pkg{ToOoOlTiPs}.
+\begin{verbatim}
+(Desperately need more resources)
+\end{verbatim}
+
+\begin{itemize}
+\item
+  Glyph maps are a specific type of multivariate glyph plots where each spatial location is represented by a glyph that encapsulates data measured over time at that location. As detailed in \href{https://vita.had.co.nz/papers/glyph-maps.pdf}{Hadley Wickham's} paper, glyph maps are particularly effective for uncovering both local and global structures, emphasizing temporal relationships within the data. These maps utilize small glyphs or icons to represent multiple data values at each location, extending the concept of glyphs which are traditionally used to display multivariate data.
+\item
+  Challenges with Faceted Maps and Spatio-Temporal Animations: While faceted maps and spatio-temporal animations are useful for highlighting spatial patterns, they often fall short in adequately showcasing temporal trends. To overcome this, a transformation technique is employed which utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as \href{https://cran.r-project.org/web/packages/GGally/GGally.pdf}{GGally} and \href{https://www.jstatsoft.org/article/view/v110i07}{cubble}, facilitating a more integrated approach to spatio-temporal data visualization.
+\item
+  The R package \href{https://www.jstatsoft.org/article/view/v110i07}{cubble} introduces an innovative cubble class designed to efficiently organize spatial and temporal variables. This dual structure allows for separate or combined manipulation of these variables while maintaining synchronization. A spatial cubble object is constructed from distinct spatial and temporal tables through the function make\_cubble(), requiring the specification of three attributes: key, index, and coords. This functionality not only simplifies the data wrangling process but also enhances the analytical capabilities when dealing with complex datasets.
+\end{itemize}
+
+\hypertarget{extending-ggplot2-with-ggproto}{%
+\subsubsection{Extending ggplot2 with ggproto}\label{extending-ggplot2-with-ggproto}}
+
+\begin{verbatim}
+ Diversify your resources a bit :((
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  Elegant Graphics for Data Analysis: The architecture of ggplot2 is fundamentally based on the ggproto system of object-oriented programming. Initially, ggplot2 utilized the proto system, developed by Grothendieck, Kates, and Petzoldt in 2016, for object-oriented tasks. This system, described in detail in the \href{https://cran.r-project.org/web/packages/proto/proto.pdf}{Proto package documentation},
+  outlines that proto is an S3 subclass of the R environment class, implying single inheritance and mutable state characteristic of all environments. Proto objects are created and modified using the proto function which sets the parent environment, evaluates expressions, and handles lazy evaluation of arguments.
+\end{itemize}
+
+However, as the need for an official extension mechanism in ggplot2 grew, the limitations of the proto system became apparent, leading to the adoption of ggproto. This transition is well-documented in Hadley Wickham's book, \href{https://ggplot2-book.org/}{ggplot2: Elegant Graphics for Data Analysis}, which also introduces how to utilize ggproto objects to extend ggplot2 functionalities.
+
+The creation of a new ggproto object is facilitated by the ggproto() function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from \texttt{Stat} and \texttt{Geom.} However, merely creating a ggproto object does not make it accessible or useful to the end user.
+
+(Example from ggplot2-book.org)
+
+\begin{verbatim}
+NewObject <- ggproto(
+  `_class` = NULL, 
+  `_inherits` = NULL
+)
+\end{verbatim}
+
+To bridge this gap, the creation of a layer function is necessary. An example is the \texttt{new\_stat()} function, which follows a consistent format: setting defaults in the function arguments, and calling layer(), which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics. This function exemplifies the methodology to create functional and user-accessible components in ggplot2.
+
+(Example from ggplot2-book.org)
+
+\begin{verbatim}
+new_stat <- function(mapping = NULL, data = NULL, 
+                       geom = "geometry", position = "identity", 
+                       na.rm = FALSE, show.legend = NA, 
+                       inherit.aes = TRUE, ...) {
+  layer(
+    stat = NewStat, 
+    data = data, 
+    mapping = mapping, 
+    geom = geom, 
+    position = position, 
+    show.legend = show.legend, 
+    inherit.aes = inherit.aes, 
+    params = list(na.rm = na.rm, ...)
+  )
+}
+\end{verbatim}
+
+While developing ggplot2 extensions, it may seem intuitive to encapsulate extensions as new geoms, as they are frequently used by users to add layers to a plot. However, the diversity in ggplot2's capabilities often stems more from the variety in statistical transformations (stats) than merely geometric objects (geoms), suggesting a nuanced approach in designing extensions that effectively enhance the plotting system.
+
+\hypertarget{software}{%
+\section{Software}\label{software}}
+
+\begin{verbatim}
+Check out:  https://journal.r-project.org/articles/RJ-2023-013/
+Note: collect all the technical part in one section
+\end{verbatim}
+
+\hypertarget{data-structure}{%
+\subsubsection{Data structure}\label{data-structure}}
+
+\hypertarget{rescale}{%
+\subsubsection{Rescale}\label{rescale}}
+
+\hypertarget{spatial-temporal-transformation}{%
+\subsubsection{Spatial-temporal transformation}\label{spatial-temporal-transformation}}
+
+\hypertarget{aesthetics}{%
+\subsubsection{Aesthetics}\label{aesthetics}}
+
+\hypertarget{parameters}{%
+\subsubsection{Parameters}\label{parameters}}
+
+\hypertarget{interactivity}{%
+\subsubsection{Interactivity}\label{interactivity}}
+
+\hypertarget{examples}{%
+\subsection{Examples}\label{examples}}
+
+\hypertarget{application}{%
+\section{Application}\label{application}}
+
+Five examples are selected to demonstrate various features of the sugarglider package: (1) Creating a ribbon glyph map to visualize annual fluctuations in minimum and maximum daily patronage for each train station, revealing seasonal trends. (2) Using glyph segments to compare patronage on typical weekdays versus weekends at different stations, enabling insights for optimizing service schedules. (3) Utilizing glyph ribbons to represent variations in patronage during distinct peak periods---AM peak, interpeak, PM peak, and late PM hours---across stations. (4) Displaying differences in patronage across transportation modes (Metro, VLine, or both) using glyph segments, identifying capacity imbalances. Lastly, (5) Employing glyph ribbons to compare public and school holiday patronage against regular days, aiding in scheduling and resource planning.
+
+\hypertarget{yearly-patronage-changes-by-station}{%
+\subsubsection{Yearly Patronage Changes by Station}\label{yearly-patronage-changes-by-station}}
+
+\hypertarget{weekday-vs.-weekend-patronage}{%
+\subsubsection{Weekday vs.~Weekend Patronage}\label{weekday-vs.-weekend-patronage}}
+
+\hypertarget{patronage-during-different-peak-times}{%
+\subsubsection{Patronage During Different Peak Times}\label{patronage-during-different-peak-times}}
+
+\hypertarget{patronage-variations-by-transportation-mode}{%
+\subsubsection{Patronage Variations by Transportation Mode}\label{patronage-variations-by-transportation-mode}}
+
+\hypertarget{public-and-school-holiday-patronage-vs.-regular-days}{%
+\subsubsection{Public and School Holiday Patronage vs.~Regular Days}\label{public-and-school-holiday-patronage-vs.-regular-days}}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+\hypertarget{acknowledgements}{%
+\section{Acknowledgements}\label{acknowledgements}}
 
 \hypertarget{references}{%
-\section*{References}\label{references}}
-\addcontentsline{toc}{section}{References}
+\section{References}\label{references}}
 
-\hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-crosstalk}{}}%
-Cheng, Joe, and Carson Sievert. 2021. \emph{{crosstalk}: Inter-Widget Interactivity for HTML Widgets}. \url{https://CRAN.R-project.org/package=crosstalk}.
+\begin{itemize}
+\item
+  Glyph-maps: \url{https://vita.had.co.nz/papers/glyph-maps.pdf}
+\item
+  cubble: \url{https://www.jstatsoft.org/article/view/v110i07}
+\item
+  Proto: \url{https://cran.r-project.org/web/packages/proto/proto.pdf}
+\item
+  GGally: \url{https://cran.r-project.org/web/packages/GGally/GGally.pdf}
+\item
+  Elegant Graphics for Data Analysis: \url{https://ggplot2-book.org/}
+\end{itemize}
 
-\leavevmode\vadjust pre{\hypertarget{ref-palmerpenguins}{}}%
-Horst, Allison Marie, Alison Presmanes Hill, and Kristen B Gorman. 2020. \emph{{palmerpenguins}: Palmer Archipelago (Antarctica) Penguin Data}. \url{https://allisonhorst.github.io/palmerpenguins/}.
+\hypertarget{references-1}{%
+\section{References}\label{references-1}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-plotly}{}}%
-Sievert, Carson. 2020. \emph{{Interactive Web-Based Data Visualizatio}n with r, Plotly, and Shiny}. Chapman; Hall/CRC. \url{https://plotly-r.com}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-RJ-2021-050}{}}%
-Wang, Earo, and Dianne Cook. 2021. {``Conversations in Time: Interactive Visualisation to Explore Structured Temporal Data.''} \emph{The R Journal}. \url{https://doi.org/10.32614/RJ-2021-050}.
-
-\end{CSLReferences}
-
+\bibliography{sugarglider-journal.bib}
 
 \address{%
-Quietest Quokka\\
-University of Little Mates\\%
-Department of Letter Q\\ Somewhere, Australia\\
+Maliny Po\\
+Monash University\\%
+Department of Econometrics and Business Statistics\\ Melbourne, Australia\\
 %
-\url{https://www.britannica.com/animal/quokka}\\%
-\textit{ORCiD: \href{https://orcid.org/0000-1721-1511-1101}{0000-1721-1511-1101}}\\%
-\href{mailto:qquo@ulm.edu}{\nolinkurl{qquo@ulm.edu}}%
+%
+\textit{ORCiD: \href{https://orcid.org/0009-0008-4686-6631}{0009-0008-4686-6631}}\\%
+\href{mailto:malinypo12@gmail.com}{\nolinkurl{malinypo12@gmail.com}}%
 }
 
 \address{%
-Bounciest Bilby\\
-University of Little MatesUniversity of Aussie Animals\\%
-Department of Letter Q, Somewhere, Australia\\ Department of Marsupials, Somewhere, Australia\\
+Dianne Cook\\
+Monash University\\%
+Department of Econometrics and Business Statistics\\ Melbourne, Australia\\
 %
-\url{https://www.britannica.com/animal/bilby}\\%
-\textit{ORCiD: \href{https://orcid.org/0000-0002-0912-0225}{0000-0002-0912-0225}}\\%
-\href{mailto:bbil@ulm.edu}{\nolinkurl{bbil@ulm.edu}}%
+%
+\textit{ORCiD: \href{https://orcid.org/0000-0002-3813-7155}{0000-0002-3813-7155}}\\%
+\href{mailto:dicook@monash.edu}{\nolinkurl{dicook@monash.edu}}%
 }
