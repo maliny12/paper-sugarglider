@@ -2,8 +2,198 @@
 # Please edit sugarglider.Rmd to modify this file
 
 ## ----setup, include=FALSE-----------------------------------------------------
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE)
+
+
 library(ggplot2)
 library(tidyverse)
 library(sugarglider)
+library(ozmaps)
+library(gridExtra)
+
+
+## -----------------------------------------------------------------------------
+# Data preparation
+
+vic_temp <- aus_temp |>
+  filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143"))
+
+nsw_temp <- aus_temp |>
+  filter(id %in% c("ASN00055325", "ASN00049000"))
+
+
+
+## ----comparison-plot----------------------------------------------------------
+
+# Define a color palette
+color_palette <- c("deepskyblue4", "coral3")
+
+p1 <- vic_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+          fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[1]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[1]) +
+  geom_glyph_ribbon(width = rel(2.5), height = rel(1.5),
+                    color = color_palette[1], fill = color_palette[1]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_ribbon()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[1],
+                             family  = "mono")) 
+
+p2 <- vic_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              y_minor = tmin,
+              yend_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+         fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[2]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[2]) +
+  geom_glyph_segment(width = rel(2.5), height = rel(1.5),
+                    color = color_palette[2]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_segment()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[2]))
+
+grid.arrange(p1, p2, ncol = 2) 
+
+
+## ----echo = TRUE--------------------------------------------------------------
+glimpse(aus_temp)
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> # Default rescale
+#> nsw_temp |>
+#>    ggplot(aes(x_major = long,
+#>               y_major = lat,
+#>               x_minor = month,
+#>               ymin_minor = tmin,
+#>               ymax_minor = tmax)) +
+#>   geom_glyph_ribbon() +
+#>   theme_glyph()
+
+
+## ----defaultRescale, fig.cap="Default rescale. Additional codes are needed for plotting the base map"----
+# Default rescale
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
+         fill = "antiquewhite", color = "white",
+         inherit.aes = FALSE) +
+  geom_glyph_ribbon() +
+  theme_glyph() +
+  coord_sf(xlim = c(140,155))
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> # Custom rescale function
+#> custom_rescale <- function(dx) {
+#>   rng <- range(dx, na.rm = TRUE)
+#>   # Rescale dx to [0,1]
+#>   rescaled <- (dx - rng[1]) / (rng[2] - rng[1])
+#> }
+#> 
+#> # Customised rescale function
+#> nsw_temp |>
+#>    ggplot(aes(x_major = long,
+#>               y_major = lat,
+#>               x_minor = month,
+#>               ymin_minor = tmin,
+#>               ymax_minor = tmax)) +
+#>   geom_glyph_ribbon(x_scale = custom_rescale,
+#>                     y_scale = custom_rescale) +
+#>   theme_glyph()
+
+
+## ----customRescale, fig.cap= "Custom rescale. Additional codes are needed for plotting the base map"----
+# Custom rescale function 
+custom_rescale <- function(dx) {
+  rng <- range(dx, na.rm = TRUE)
+  # Rescale dx to [0,1]
+  rescaled <- (dx - rng[1]) / (rng[2] - rng[1])
+}
+
+# Customized rescale function
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
+         fill = "antiquewhite", color = "white",
+         inherit.aes = FALSE) +
+  geom_glyph_ribbon(x_scale = custom_rescale,
+                    y_scale = custom_rescale) +
+  theme_glyph() +
+  coord_sf(xlim = c(140,155))
+
+
+
+## -----------------------------------------------------------------------------
+# Global rescale
+p1 <- aus_temp |>
+  ggplot(aes(
+    x_major = long, 
+    y_major = lat, 
+    x_minor = month, 
+    y_minor = tmin, 
+    yend_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  coord_sf(xlim = c(110,155)) +
+  # Add glyph box to each glyph
+  add_glyph_boxes() +
+  # Add reference lines to each glyph
+  add_ref_lines() +
+  # Glyph segment plot with global rescale
+  geom_glyph_segment(global_rescale = TRUE) +
+  labs(title = "Global Rescale") +
+  theme_glyph()
+  
+# Local Rescale
+p2 <- aus_temp |>
+  ggplot(aes(
+    x_major = long, 
+    y_major = lat, 
+    x_minor = month, 
+    y_minor = tmin, 
+    yend_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  coord_sf(xlim = c(110,155)) +
+  # Add glyph box to each glyph
+  add_glyph_boxes() +
+  # Add reference lines to each glyph
+  add_ref_lines() +
+  # Glyph segment plot with local rescale
+  geom_glyph_segment(global_rescale = FALSE) +
+  labs(title = "Local Rescale") +
+  theme_glyph()
+
+grid.arrange(p1, p2, ncol = 2) 
+
 

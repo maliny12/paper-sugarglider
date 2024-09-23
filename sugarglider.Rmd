@@ -29,10 +29,16 @@ bibliography: sugarglider-journal.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE)
+
+
 library(ggplot2)
 library(tidyverse)
 library(sugarglider)
+library(ozmaps)
+library(gridExtra)
 ```
 
 # Introduction
@@ -40,7 +46,6 @@ library(sugarglider)
 ```
 Note: use similar terminology as cubble & glyph-maps. Add a quick start (quick guide on how to use the sugarglider package)
 ```
-
 
 
 
@@ -59,6 +64,7 @@ Note: use similar terminology as cubble & glyph-maps. Add a quick start (quick g
 - Challenges with Faceted Maps and Spatio-Temporal Animations: While faceted maps and spatio-temporal animations are useful for highlighting spatial patterns, they often fall short in adequately showcasing temporal trends. To overcome this, a transformation technique is employed which utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as [GGally](https://cran.r-project.org/web/packages/GGally/GGally.pdf) and [cubble]( https://www.jstatsoft.org/article/view/v110i07), facilitating a more integrated approach to spatio-temporal data visualization.
 
 - The R package [cubble](https://www.jstatsoft.org/article/view/v110i07) introduces an innovative cubble class designed to efficiently organize spatial and temporal variables. This dual structure allows for separate or combined manipulation of these variables while maintaining synchronization. A spatial cubble object is constructed from distinct spatial and temporal tables through the function make_cubble(), requiring the specification of three attributes: key, index, and coords. This functionality not only simplifies the data wrangling process but also enhances the analytical capabilities when dealing with complex datasets.
+
 
 
 ### Extending ggplot2 with ggproto
@@ -111,25 +117,277 @@ While developing ggplot2 extensions, it may seem intuitive to encapsulate extens
 # Software
 
 ```
-Check out:  https://journal.r-project.org/articles/RJ-2023-013/
+Check out:  https://journal.r-project.org/articles/RJ-2023-013
 Note: collect all the technical part in one section
 ```
 
+`sugarglider` provides ggplot2 extensions to create glyph maps that visualize seasonal aspects of spatio-temporal data with geom_glyph_ribbon() and geom_glyph_segment().
+
+
+Designed to visualize seasonal aspects of spatio-temporal data, sugarglider has the capability to display glyphs with ribbon or segment geometry based on the combination of x_major and y_major. Figure \@ref(fig:comparison-plot) highlights the package's versatility. The code for these examples is provided below and can be summarised as consisting of the following components. First the glyph plot is created by adding either ribbon or segment geom from ggplot2. For each x_minor value, geom_glyph_ribbon() displays a y interval defined by ymin_minor and ymax_minor. Meanwhile, geom_glyph_segment() draw a straight line between y_minor and yend_minor with respect to x_minor. An optional global_rescale argument allow users to control whether rescalling is applied globally across all glyphs or individually for each glyph. 
+
+`add_ref_line`, `add_ref_box`, and `add_geom_legend`
+
+```{r}
+# Data preparation
+
+vic_temp <- aus_temp |>
+  filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143"))
+
+nsw_temp <- aus_temp |>
+  filter(id %in% c("ASN00055325", "ASN00049000"))
+
+```
+
+```{r comparison-plot}
+
+# Define a color palette
+color_palette <- c("deepskyblue4", "coral3")
+
+p1 <- vic_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+          fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[1]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[1]) +
+  geom_glyph_ribbon(width = rel(2.5), height = rel(1.5),
+                    color = color_palette[1], fill = color_palette[1]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_ribbon()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[1],
+                             family  = "mono")) 
+
+p2 <- vic_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              y_minor = tmin,
+              yend_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+         fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[2]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[2]) +
+  geom_glyph_segment(width = rel(2.5), height = rel(1.5),
+                    color = color_palette[2]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_segment()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[2]))
+
+grid.arrange(p1, p2, ncol = 2) 
+```
+
+Furthermore, sugarglider allows various features to be customised:
+- **Scaling of minor values** with-in a grid cell along the x and y dimension.
+- **Rescale** of the value in ploted in each glyph. Determines whether rescaling is applied globally across all glyphs or individually for each glyph. 
+- **Width** and **height** of the glyphs.
+
+
+The following section will discuss these features and provide examples of their use. 
+
 ### Data structure
+
+The first step to creating a glyph plot with sugarglider is to ensure that the data are in supported format. There are 2 data structure to consider @JSSv110i07, one of which is compatible with sugarglider. sugarglider exspect data in a long format with temporal and spatial elements. 
+
+One dataset provided in the package is the `aus_temp` dataset which derives from The National Oceanic and Atmospheric Administration (NOAA) provides comprehensive weather data from numerous stations across Australia. The aus_temp dataset includes key climate variables, such as precipitation and temperature, recorded at 29 different weather stations throughout 2020. It has spatial elements (longitude, latitude), temporal elements (month) and range of temperature that define the width of ribbon and segment plot. 
+
+```{r, echo = TRUE}
+glimpse(aus_temp)
+```
+In many cases, analysts may initially receive station data containing geographic location information, recorded variables and their recording periods. They can then query the temporal variables using the stations of interest to obtain the relevant temporal data. Alternatively, analyses may begin as purely spatial or temporal, and analysts may obtain additional temporal or spatial data to expand the result to spatio-temporal. In this case, users can compose cubble objects using functions from cubble packages such as make_cubble() and pass the new data to sugarglider. 
 
 ### Rescale
 
+sugarglider rescale minor axies (data that are used to plot the individual glyphs) before plotting the glyphs. The purpose of rescaling the value to prepare the data for the linear transformation to map temporal data into a spatial one, which will be explored in the next section. The rescale is controlled by 2 parameters: `x_scale` and `y_scale`. `x_scale` scales each set of minor values within a grid cell along the x-dimension. `y_scale` scales each set of minor values within a grid cell along the y-dimension. The default rescale is 'identify' which adjust minor axes to to fit within an interval of [-1,1] using the following equation. 
+
+```{r, eval=FALSE}
+# Default rescale
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_glyph_ribbon() +
+  theme_glyph() 
+```
+
+```{r defaultRescale, fig.cap="Default rescale. Additional codes are needed for plotting the base map"}
+# Default rescale
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
+         fill = "antiquewhite", color = "white",
+         inherit.aes = FALSE) +
+  geom_glyph_ribbon() +
+  theme_glyph() +
+  coord_sf(xlim = c(140,155))
+```
+
+Users can also change the rescale function by replacing the default value for `x_scale` and `y_scale` with their own function. In the example code below, we have a custom rescale function that transform value into an interval of [0,1]. 
+
+```{r, eval=FALSE}
+# Custom rescale function 
+custom_rescale <- function(dx) {
+  rng <- range(dx, na.rm = TRUE)
+  # Rescale dx to [0,1]
+  rescaled <- (dx - rng[1]) / (rng[2] - rng[1])
+}
+
+# Customised rescale function
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_glyph_ribbon(x_scale = custom_rescale,
+                    y_scale = custom_rescale) +
+  theme_glyph() 
+```
+
+```{r customRescale, fig.cap= "Custom rescale. Additional codes are needed for plotting the base map"}
+# Custom rescale function 
+custom_rescale <- function(dx) {
+  rng <- range(dx, na.rm = TRUE)
+  # Rescale dx to [0,1]
+  rescaled <- (dx - rng[1]) / (rng[2] - rng[1])
+}
+
+# Customized rescale function
+nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
+         fill = "antiquewhite", color = "white",
+         inherit.aes = FALSE) +
+  geom_glyph_ribbon(x_scale = custom_rescale,
+                    y_scale = custom_rescale) +
+  theme_glyph() +
+  coord_sf(xlim = c(140,155))
+
+```
+
+With the new rescale functions, we can observe that the ribbon are alot thinner than the previous example. To understand how rescale impact the mapping of temporal data into glyphs, we need to look at the how rescale is applied for both `geom_glyph_ribbon` and `geom_glyph_segemnt` and the spatial temporal transformation for each of these plot type in the following section. 
+
+sugarglider also allow user to choose whether rescaling is applied globally across all glyphs or individually for each glyph. This is controlled by an option called `global_rescale`. The default for this parameter is `TRUE`. User can specify for a local rescale by setting `global_rescale` to be `FALSE`. The differences between local and global rescale can be observed in the following example: 
+
+```{r}
+# Global rescale
+p1 <- aus_temp |>
+  ggplot(aes(
+    x_major = long, 
+    y_major = lat, 
+    x_minor = month, 
+    y_minor = tmin, 
+    yend_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  coord_sf(xlim = c(110,155)) +
+  # Add glyph box to each glyph
+  add_glyph_boxes() +
+  # Add reference lines to each glyph
+  add_ref_lines() +
+  # Glyph segment plot with global rescale
+  geom_glyph_segment(global_rescale = TRUE) +
+  labs(title = "Global Rescale") +
+  theme_glyph()
+  
+# Local Rescale
+p2 <- aus_temp |>
+  ggplot(aes(
+    x_major = long, 
+    y_major = lat, 
+    x_minor = month, 
+    y_minor = tmin, 
+    yend_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  coord_sf(xlim = c(110,155)) +
+  # Add glyph box to each glyph
+  add_glyph_boxes() +
+  # Add reference lines to each glyph
+  add_ref_lines() +
+  # Glyph segment plot with local rescale
+  geom_glyph_segment(global_rescale = FALSE) +
+  labs(title = "Local Rescale") +
+  theme_glyph()
+
+grid.arrange(p1, p2, ncol = 2) 
+
+```
+
+
+sugarglider apply rescaling in multiple steps. First the (...)
+For `geom_glyph_ribbon` the rescale is done separately for ymin_minor and ymax_minor. 
+
+(.......)
+
+
 ### Spatial-temporal transformation
+
+![](figures/diagram-transformation.png)
+The construction of glyph map (as described in @wickham2012glyph) involve a linear mix of two structure component of the data: spatial location and data value. The spatial location is the major axes are latitude ($y_{major}$) and longitude ($x_{minor}$), and the minor axes are time ($x_minor$) and some measurement ($ymax_{minor}$ and $ymin_{minor}$). For `geom_segment_glyph` the aesthetic would be $y_{minor}$ and $yend_{minor}$. Once the minor axes are rescaled to [-1,1], the final coordinates ($x$,$ymin$, $ymax$) for ribbon glyph are the linear combination, given by: 
+
+$x = x_{major} + \frac{width}{2}.x_{minor}$
+$ymin = y_{major} + \frac{height}{2}.ymin_{minor}$
+$ymax = y_{major} + \frac{height}{2}.ymax_{minor}$
+
+Similarly, the coordinates for segment glyph are given by:
+ 
+$x = x_{major} + \frac{width}{2}.x_{minor}$
+$y = y_{major} + \frac{height}{2}.y_{minor}$
+$yend = y_{major} + \frac{height}{2}.yend_{minor}$
+
+(...)
 
 ### Aesthetics
 
-### Parameters
+sugarglider provides the same aesthetics for geom_glyph_ribbon() and geom_glyph_segment() as those available in geom_ribbon() or geom_segment(), while also introducing additional unique options. 
+
+(...)
+
+In order to include a variable in the glyph plot, it much be specified as an asthetic, In `geom_glyph_ribbon()`, the following asthetic must be specified:
+- *x_major*,*y_major*,*x_minor*,*ymin_minor*,*ymax_minor*: Each combination of x_major and y_major forms a unique grid cell. ymin_minor and ymax_minor define the lower and upper bounds of the geom_ribbon.
+
+As for `geom_glyph_segment()`, the following asthetic must be specified:
+- *x_major*,*y_major*,*x_minor*,*y_minor*,*yend_minor*: x_major and y_major specify a longitude and latitude on a map while
+x_minor, y_minor, and yend_minor provide the structure for glyph.
+
+Additional unique options also include:
+
+- color : Color for line segments and borders.
+- linewidth: Width of the line for borders.
+- linetype: Style of the line for borders.
+- fill: Color of the interior area of the geometries.
+- alpha: Transparency level of the glyphs.
+
 
 ### Interactivity
 
-## Examples
 
 
+### Examples
 
 
 
@@ -141,6 +399,7 @@ Note: collect all the technical part in one section
 Five examples are selected to demonstrate various features of the sugarglider package: (1) Creating a ribbon glyph map to visualize annual fluctuations in minimum and maximum daily patronage for each train station, revealing seasonal trends. (2) Using glyph segments to compare patronage on typical weekdays versus weekends at different stations, enabling insights for optimizing service schedules. (3) Utilizing glyph ribbons to represent variations in patronage during distinct peak periods—AM peak, interpeak, PM peak, and late PM hours—across stations. (4) Displaying differences in patronage across transportation modes (Metro, VLine, or both) using glyph segments, identifying capacity imbalances. Lastly, (5) Employing glyph ribbons to compare public and school holiday patronage against regular days, aiding in scheduling and resource planning.
 
 ### Yearly Patronage Changes by Station
+
 
 
 ### Weekday vs. Weekend Patronage
@@ -162,14 +421,3 @@ Five examples are selected to demonstrate various features of the sugarglider pa
 
 # Acknowledgements
 
-# References
-
-- Glyph-maps: https://vita.had.co.nz/papers/glyph-maps.pdf
-
-- cubble: https://www.jstatsoft.org/article/view/v110i07
-
-- Proto:  https://cran.r-project.org/web/packages/proto/proto.pdf
-
-- GGally: https://cran.r-project.org/web/packages/GGally/GGally.pdf
-
-- Elegant Graphics for Data Analysis: https://ggplot2-book.org/ 
