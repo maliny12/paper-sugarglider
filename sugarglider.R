@@ -7,15 +7,50 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 
 
-library(ggplot2)
-library(tidyverse)
 library(sugarglider)
-library(ozmaps)
+library(knitr)
+library(ggplot2)
+library(sf)
+library(tidyverse)
+library(grid)
+library(viridis)
 library(gridExtra)
+library(ozmaps)
+library(ggthemes)
+library(kableExtra)
+library(usmap)
+library(ggiraph)
 
 
-## -----------------------------------------------------------------------------
-# Data preparation
+## ----eval = FALSE, echo=TRUE--------------------------------------------------
+#> # Ribbon glyph
+#> vic_temp |>
+#>    ggplot(aes(x_major = long,
+#>               y_major = lat,
+#>               x_minor = month,
+#>               ymin_minor = tmin,
+#>               ymax_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_ribbon() +
+#>   theme_glyph()
+#> 
+#> # Segment glyph
+#> vic_temp |>
+#>    ggplot(aes(x_major = long,
+#>               y_major = lat,
+#>               x_minor = month,
+#>               y_minor = tmin,
+#>               yend_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_segment() +
+#>   theme_glyph()
+
+
+## ----comparisonPlot, fig.cap = "Comparison between ribbon and segment glyph-maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divide each glyph midway, assisting users in making inferences about the plot. Additional coding is required to establish the base map and adjust the width and height of each glyph."----
+
+# Data preparation -----------------------------------------------
 
 vic_temp <- aus_temp |>
   filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143"))
@@ -24,8 +59,7 @@ nsw_temp <- aus_temp |>
   filter(id %in% c("ASN00055325", "ASN00049000"))
 
 
-
-## ----comparison-plot----------------------------------------------------------
+# Plot -----------------------------------------------
 
 # Define a color palette
 color_palette <- c("deepskyblue4", "coral3")
@@ -80,7 +114,7 @@ grid.arrange(p1, p2, ncol = 2)
 glimpse(aus_temp)
 
 
-## ----eval=FALSE---------------------------------------------------------------
+## ----eval=FALSE, echo=TRUE----------------------------------------------------
 #> # Default rescale
 #> nsw_temp |>
 #>    ggplot(aes(x_major = long,
@@ -90,33 +124,14 @@ glimpse(aus_temp)
 #>               ymax_minor = tmax)) +
 #>   geom_glyph_ribbon() +
 #>   theme_glyph()
-
-
-## ----defaultRescale, fig.cap="Default rescale. Additional codes are needed for plotting the base map"----
-# Default rescale
-nsw_temp |>
-   ggplot(aes(x_major = long,
-              y_major = lat,
-              x_minor = month,
-              ymin_minor = tmin,
-              ymax_minor = tmax)) +
-  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
-         fill = "antiquewhite", color = "white",
-         inherit.aes = FALSE) +
-  geom_glyph_ribbon() +
-  theme_glyph() +
-  coord_sf(xlim = c(140,155))
-
-
-## ----eval=FALSE---------------------------------------------------------------
-#> # Custom rescale function
+#> 
+#> # Custom rescale
 #> custom_rescale <- function(dx) {
 #>   rng <- range(dx, na.rm = TRUE)
 #>   # Rescale dx to [0,1]
 #>   rescaled <- (dx - rng[1]) / (rng[2] - rng[1])
 #> }
 #> 
-#> # Customised rescale function
 #> nsw_temp |>
 #>    ggplot(aes(x_major = long,
 #>               y_major = lat,
@@ -128,7 +143,23 @@ nsw_temp |>
 #>   theme_glyph()
 
 
-## ----customRescale, fig.cap= "Custom rescale. Additional codes are needed for plotting the base map"----
+## ----defaultRescale, fig.cap="The figure illustrates the effect of rescaling on ribbon glyphs. With the default rescaling, all minor axes are adjusted to fit within the interval [-1, 1], whereas the custom rescale function adjusts the minor axes to the interval [0, 1]. Additional code is required to plot the base map alongside the rescaled glyphs."----
+# Default rescale
+def_rescale <- nsw_temp |>
+   ggplot(aes(x_major = long,
+              y_major = lat,
+              x_minor = month,
+              ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "New South Wales"),
+         fill = "antiquewhite", color = "white",
+         inherit.aes = FALSE) +
+  geom_glyph_ribbon() +
+  theme_glyph() + 
+  labs(title = "Default Rescale") +
+  coord_sf(xlim = c(140,155))
+
+
 # Custom rescale function 
 custom_rescale <- function(dx) {
   rng <- range(dx, na.rm = TRUE)
@@ -137,7 +168,7 @@ custom_rescale <- function(dx) {
 }
 
 # Customized rescale function
-nsw_temp |>
+cus_rescale <- nsw_temp |>
    ggplot(aes(x_major = long,
               y_major = lat,
               x_minor = month,
@@ -149,11 +180,41 @@ nsw_temp |>
   geom_glyph_ribbon(x_scale = custom_rescale,
                     y_scale = custom_rescale) +
   theme_glyph() +
+  labs(title = "Custom Rescale") +
   coord_sf(xlim = c(140,155))
 
+grid.arrange(def_rescale, cus_rescale, ncol = 2)
 
 
-## -----------------------------------------------------------------------------
+## ----eval=FALSE, echo=TRUE----------------------------------------------------
+#> # Global rescale
+#> aus_temp |>
+#>   ggplot(aes(
+#>     x_major = long,
+#>     y_major = lat,
+#>     x_minor = month,
+#>     y_minor = tmin,
+#>     yend_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_segment(global_rescale = TRUE) +
+#>   theme_glyph()
+#> 
+#> # Local Rescale
+#> aus_temp |>
+#>   ggplot(aes(
+#>     x_major = long,
+#>     y_major = lat,
+#>     x_minor = month,
+#>     y_minor = tmin,
+#>     yend_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_segment(global_rescale = FALSE) +
+#>   theme_glyph()
+
+
+## ----fig.cap="The figure highlights the impact of global and local rescaling on segment glyphs. With global rescaling, the temperature range is uniform across all glyphs, allowing users to compare variation in temperature between stations across Australia. In contrast, with local rescaling, the temperature range varies between glyphs, enabling more detailed insights into the temperature distribution at individual stations. Additional code is required to plot the base map and specify the xlim for the sf coordinates."----
 # Global rescale
 p1 <- aus_temp |>
   ggplot(aes(
@@ -196,4 +257,287 @@ p2 <- aus_temp |>
 
 grid.arrange(p1, p2, ncol = 2) 
 
+
+
+## ----echo=FALSE, fig.cap="Diagram highlights how spatial data (geographical location) is combined with temporal data (measurements over time) to create a spatio-temporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns over time across different spatial locations."----
+knitr::include_graphics("figures/diagram-transformation.png")
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> aus_temp |>
+#>   ggplot(aes(
+#>     x_major = long,
+#>     y_major = lat,
+#>     x_minor = month,
+#>     y_minor = tmin,
+#>     yend_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   geom_point(aes(x = long, y = lat,
+#>                  color = "Weather Station")) +
+#>   geom_glyph_segment() +
+#>   theme_glyph()
+
+
+## ----fig.cap="Additional codes are needed for base map"-----------------------
+aus_temp |>
+  ggplot(aes(
+    x_major = long, 
+    y_major = lat, 
+    x_minor = month, 
+    y_minor = tmin, 
+    yend_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  coord_sf(xlim = c(110,155)) +
+  # Add glyph box to each glyph
+  add_glyph_boxes(
+    width = 4,
+    height = 3) +
+  # Add points for weather station 
+  geom_point(aes(x = long, y = lat,
+                 color = "Weather Station")) +
+  # Customize the size of each glyph box using the width and height parameters.
+  geom_glyph_segment(
+    width = 4, height = 3,
+    aes(color = "Temperature")) +
+  # Theme and aesthetic 
+  scale_color_manual(
+    values = c("Weather Station" = "firebrick",
+               "Temperature" = "black")) +
+  labs(color = "Data",
+       title = "Daily Temperature Variations Across Australian Weather Stations")  +
+  theme_glyph()
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> aus_temp |>
+#>    group_by(id) |>
+#>    mutate(prcp = mean(prcp, na.rm = TRUE)) |>
+#>    ggplot(aes(x_major = long, y_major = lat,
+#>               x_minor = month, ymin_minor = tmin,
+#>               ymax_minor = tmax,
+#>               fill = prcp, color = prcp)) +
+#>    add_glyph_boxes() +
+#>    add_ref_lines() +
+#>    geom_glyph_ribbon() +
+#>    theme_glyph()
+
+
+## ----fig.cap="Additional codes are needed for base map, and additonal theme customisation"----
+aus_temp |>
+   group_by(id) |>
+   mutate(prcp = mean(prcp, na.rm = TRUE)) |>
+   ggplot(aes(x_major = long, y_major = lat,
+              x_minor = month, ymin_minor = tmin,
+              ymax_minor = tmax, 
+              fill = prcp, color = prcp)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  # Add glyph box to each glyph
+   add_glyph_boxes() +
+  # Add ref line to each glyph
+   add_ref_lines() +
+  # Add glyph ribbon plots
+   geom_glyph_ribbon() +
+   coord_sf(xlim = c(112,155)) +
+  # Theme and aesthetic 
+  theme_glyph() +
+  scale_fill_gradientn(colors = c("#ADD8E6", "#2b5e82", "dodgerblue4")) +
+  scale_color_gradientn(colors = c( "#ADD8E6", "#2b5e82", "dodgerblue4")) +
+  labs(fill = "Percepitation", color = "Percepitation",
+       title = "Precipitation and Temperature Ranges Across Australia") 
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> historical_temp |>
+#>   filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143")) |>
+#>    ggplot(aes(color = factor(year), fill = factor(year),
+#>               group = interaction(year,id),
+#>               x_major = long, y_major = lat,
+#>               x_minor = month, ymin_minor = tmin,
+#>               ymax_minor = tmax)) +
+#>    add_glyph_boxes() +
+#>    add_ref_lines() +
+#>    geom_glyph_ribbon() +
+#>    theme_glyph()
+
+
+## ----fig.cap="Additonal codes are needed for base map, title and additonal theme customisation"----
+
+historical_temp |> 
+  filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143")) |>
+   ggplot(aes(color = factor(year), fill = factor(year),
+              group = interaction(year,id),
+              x_major = long, y_major = lat,
+              x_minor = month, ymin_minor = tmin, 
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+           fill = "antiquewhite", color = "white",
+          inherit.aes = FALSE)  +
+  # Customized the dimension of each glyph with `width` and `height` parameters
+   add_glyph_boxes(width = rel(2),
+                   height = rel(1.5)) +
+   add_ref_lines(width = rel(2),
+                 height = rel(1.5)) +
+   geom_glyph_ribbon(alpha = 0.5,
+                     width = rel(2),
+                     height = rel(1.5)) +
+  labs(x = "Longitude", y = "Latitude",
+       color = "year", fill = "year",
+       title = "Temperature Trends in Selected Victorian Weather Stations") +
+  # Theme and aesthetic
+  theme_glyph() +
+  theme(legend.position.inside = c(.4,0)) +
+  scale_colour_wsj("colors6") +
+  scale_fill_wsj("colors6") 
+
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> set.seed(28493)
+#> aus_temp |>
+#>    ggplot(aes(x_major = long, y_major = lat,
+#>               x_minor = month, ymin_minor = tmin,
+#>               ymax_minor = tmax)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   add_glyph_legend() +
+#>   geom_glyph_ribbon() +
+#>   theme_glyph()
+
+
+## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+set.seed(28493)
+aus_temp |>
+   ggplot(aes(x_major = long, y_major = lat,
+              x_minor = month, ymin_minor = tmin,
+              ymax_minor = tmax)) +
+  geom_sf(data = abs_ste, fill = "antiquewhite",
+          inherit.aes = FALSE, color = "white") +
+  add_glyph_boxes(color = "#227B94") +
+  add_ref_lines(color = "#227B94") +
+  add_glyph_legend(color = "#227B94", fill = "#227B94") +
+  # Add a ribbon legend
+  geom_glyph_ribbon(color = "#227B94", fill = "#227B94") +
+  theme_glyph() +
+  labs(title = "Temperature Ranges Across Australia with Glyph Legend")
+
+
+
+## -----------------------------------------------------------------------------
+head(flights) |>
+  kable() |> kable_styling()
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> # Specify tooltip for ggiraph
+#> flights <- flights |>
+#>   mutate(tooltip = paste("origin: ",origin,
+#>                          "\nmonth: ", month,
+#>                          "\nmin_flights: ", min_flights,
+#>                          "\nmax_flights: ", max_flights))
+#> 
+#> fl <- flights |>
+#>   ggplot(aes(x_major = long, y_major = lat,
+#>              x_minor = month, y_minor = min_flights,
+#>              yend_minor = max_flights,
+#>              tooltip = tooltip)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_segment() +
+#>   theme_glyph()
+#> 
+#> # Interactive plot using ggiraph
+#> # girafe(ggobj = fl)
+#> 
+
+
+## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+USmap <- us_map(regions = "state") |>
+  filter(full != "Alaska")
+
+# Specify tooltip for ggiraph 
+flights <- flights |>
+  mutate(tooltip = paste("origin: ",origin,
+                         "\nmonth: ", month,
+                         "\nmin_flights: ", min_flights,
+                         "\nmax_flights: ", max_flights))
+
+fl <- flights |> 
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = month, y_minor = min_flights,
+             yend_minor = max_flights,
+             tooltip = tooltip)) + 
+  geom_sf(data = USmap, color = "white",
+          fill = "antiquewhite", inherit.aes = FALSE) +
+  coord_sf(crs = st_crs(4326)) +
+  add_glyph_boxes(color = "#CD5C08") +
+  add_ref_lines(color = "#CD5C08") +
+  geom_glyph_segment(color = "#CD5C08") +
+  labs(title = "Monthly Flight Variability",
+       subtitle = "Based on top 10 US Airports with high cancellations rate") +
+  theme_glyph() 
+
+# Interactive plot using ggiraph
+# girafe(ggobj = fl)
+
+
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#> # South Region
+#> flights |>
+#>   filter(origin %in% c("ATL", "CLT", "MCO", "DFW")) |>
+#>   ggplot(aes(x_major = long, y_major = lat,
+#>              x_minor = month, ymin_minor = min_flights,
+#>              ymax_minor = max_flights)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_ribbon() +
+#>   theme_glyph()
+#> 
+#> # West region
+#> flights |>
+#>   filter(origin %in% c("PHX", "LAS", "LAX", "SEA")) |>
+#>   ggplot(aes(x_major = long, y_major = lat,
+#>              x_minor = month, ymin_minor = min_flights,
+#>              ymax_minor = max_flights)) +
+#>   add_glyph_boxes() +
+#>   add_ref_lines() +
+#>   geom_glyph_ribbon() +
+#>   theme_glyph()
+
+
+## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+south <- us_map(include = .south_region)
+west <- us_map(include = .west_region, exclude = c("AK", "HI"))
+  
+  
+southR <- flights |> 
+  filter(origin %in% c("ATL", "CLT", "MCO", "DFW")) |>
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = month, ymin_minor = min_flights,
+             ymax_minor = max_flights)) + 
+  geom_sf(data = south, color = "white",
+          fill = "antiquewhite", inherit.aes = FALSE) +
+  coord_sf(crs = st_crs(4326)) +
+  add_glyph_boxes(color = "#A6B37D") +
+  add_ref_lines(color = "#A6B37D") +
+  geom_glyph_ribbon(color = "#A6B37D", fill = "#A6B37D")  +
+  labs(title = "South Region") +
+  theme_glyph() 
+
+westR <- flights |> 
+  filter(origin %in% c("PHX", "LAS", "LAX", "SEA")) |>
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = month, ymin_minor = min_flights,
+             ymax_minor = max_flights)) + 
+  geom_sf(data = west, color = "white",
+          fill = "antiquewhite", inherit.aes = FALSE) +
+  coord_sf(crs = st_crs(4326)) +
+  add_glyph_boxes(color = "#CD5C08") +
+  add_ref_lines(color = "#CD5C08") +
+  geom_glyph_ribbon(color = "#CD5C08", fill = "#CD5C08")  +
+  labs(title = "West Region") +
+  theme_glyph() 
+
+grid.arrange(westR, southR, ncol = 2)
 
