@@ -20,6 +20,12 @@ library(ggthemes)
 library(kableExtra)
 library(usmap)
 library(ggiraph)
+library(leaflet)
+library(tinytex)
+
+
+## ----fig.cap="The diagram depicts the structure of a glyph-map. The initial layer represents the base map, which can be generated using ggplot2::geom_sf() and ggplot2::geom_polygon(). Subsequent layers comprise of glyph boxes and reference lines, which are generated through add_glyph_boxes() and add_ref_lines() respectively. The fourth layer encompasses the glyph itself, offering users the choice to depict ribbon glyphs (geom_glyph_ribbon()) or segment glyphs (geom_segment_glyph()). The legend layer is optional. It enabling users to display a legend—a magnified version of one of the glyphs—using add_glyph_legend()."----
+include_graphics("figures/glyphmap-layers.png")
 
 
 ## ----eval = FALSE, echo=TRUE--------------------------------------------------
@@ -48,7 +54,7 @@ library(ggiraph)
 #>   theme_glyph()
 
 
-## ----comparisonPlot, fig.cap = "Comparison between ribbon and segment glyph-maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divide each glyph midway, assisting users in making inferences about the plot. Additional coding is required to establish the base map and adjust the width and height of each glyph."----
+## ----comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph-maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."----
 
 # Data preparation -----------------------------------------------
 
@@ -278,7 +284,7 @@ knitr::include_graphics("figures/diagram-transformation.png")
 #>   theme_glyph()
 
 
-## ----fig.cap="Additional codes are needed for base map"-----------------------
+## ----fig.cap="Daily temperature variations across Australian weather stations are visualized using Geom points to display the weather station locations. Additional codes are required for the base map."----
 aus_temp |>
   ggplot(aes(
     x_major = long, 
@@ -323,7 +329,7 @@ aus_temp |>
 #>    theme_glyph()
 
 
-## ----fig.cap="Additional codes are needed for base map, and additonal theme customisation"----
+## ----fig.cap="Precipitation and Temperature Ranges Across Australia. Each glyph is color coded based on the level of precipitation, with sky blue representing the lowest and navy blue representing the highest. Additional codes are needed for the base map and additional theme customization."----
 aus_temp |>
    group_by(id) |>
    mutate(prcp = mean(prcp, na.rm = TRUE)) |>
@@ -362,7 +368,7 @@ aus_temp |>
 #>    theme_glyph()
 
 
-## ----fig.cap="Additonal codes are needed for base map, title and additonal theme customisation"----
+## ----fig.cap="Temperature Trends in Selected Victorian Weather Stations. Additional codes are required for the base map, title, and further theme customization."----
 
 historical_temp |> 
   filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143")) |>
@@ -406,7 +412,7 @@ historical_temp |>
 #>   theme_glyph()
 
 
-## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+## ----fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional code is needed for the base map and additional theme customization."----
 set.seed(28493)
 aus_temp |>
    ggplot(aes(x_major = long, y_major = lat,
@@ -448,11 +454,10 @@ head(flights) |>
 #>   theme_glyph()
 #> 
 #> # Interactive plot using ggiraph
-#> # girafe(ggobj = fl)
-#> 
+#> girafe(ggobj = fl)
 
 
-## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+## -----------------------------------------------------------------------------
 USmap <- us_map(regions = "state") |>
   filter(full != "Alaska")
 
@@ -482,6 +487,10 @@ fl <- flights |>
 # girafe(ggobj = fl)
 
 
+## ----fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization."----
+include_graphics("figures/monthly-flight-variability.png")
+
+
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------
 #> # South Region
 #> flights |>
@@ -506,7 +515,7 @@ fl <- flights |>
 #>   theme_glyph()
 
 
-## ----fig.cap="Additonal code are needed for base map and additional theme customisation"----
+## ----fig.cap="Comparison of flight patterns between the western and southern regions. Additional codes are needed for the base map and additional theme customization."----
 south <- us_map(include = .south_region)
 west <- us_map(include = .west_region, exclude = c("AK", "HI"))
   
@@ -540,4 +549,125 @@ westR <- flights |>
   theme_glyph() 
 
 grid.arrange(westR, southR, ncol = 2)
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> 
+#> # Generate a list of unique train stations
+#> df_station <- train$station_name |> unique()
+#> 
+#> # Generate PNG of all the ribbon glyph
+#> purrr::map(1:length(df_station), function(i) {
+#>   dt <- train |> filter(station_name == df_station[i])
+#>   p <- dt |>
+#>   ggplot(aes(x_major = long, y_major = lat,
+#>                    x_minor = month_year, ymin_minor = min_monthly,
+#>                    ymax_minor = max_monthly)) +
+#>     add_glyph_boxes(color = "#FFAD60",
+#>                     fill = "#FFEEAD", alpha = 0.5,
+#>                     linewidth = 1, width = 3, height  =2) +
+#>     add_ref_lines(color = "#FFAD60", alpha = 1,
+#>                   linewidth = 1, width = 3, height  =2) +
+#>     geom_glyph_ribbon(color = "#A66E38", fill = "#A66E38",
+#>                       width = 3, height  =2) +
+#>     theme_void()
+#> 
+#>   file_path <- paste0("figures/glyph_", df_station[i], ".png")
+#>   ggsave(file_path, plot = p, width = 3, height = 2, units = "in", dpi = 300,
+#>          bg = "transparent")
+#>   return(file_path)
+#> 
+#>   }) -> train_png
+#> 
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> # Create a leaflet map
+#> leaflet_map <- leaflet() |>
+#>   addProviderTiles("CartoDB.Positron") |>
+#>   addScaleBar(position = "bottomleft")
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> # Loop through the PNG files and add them to the map
+#> for (i in seq_along(train_png)) {
+#>   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
+#> 
+#>   dt <- train |> filter(station_name == df_station[i])
+#>   leaflet_map <- leaflet_map |>
+#>     addMarkers(lng = dt$long[1], lat = dt$lat[1], icon = icon,
+#>                label = dt$station_name, options = markerOptions(opacity = 0.1))
+#> }
+#> 
+#> leaflet_map
+
+
+## ----fig.cap="Screenshot of the leaflet map"----------------------------------
+include_graphics("figures/leaflet-screenshot.jpg")
+
+
+## -----------------------------------------------------------------------------
+
+zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",	"Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",	"Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",	"Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",	"Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",	"Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",	"North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds","Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",	"Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",	"Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",	"Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",	"Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",	"Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,"Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale" ,"Armadale",	"Anstey",	"Alphington","Alamein")
+
+sample <- c("Melbourne Central", "Williamstown Beach", "South Yarra", "Carnegie",
+            "Moonee Pond", "Footscray", "Royal Park", "Essendon", "Camberwell",
+            "Gardiner", "Essendon")
+
+
+# melbourne_lga <- c("Banyule City",	"Bayside City", "Boroondara City","Brimbank City", "Cardinia Shire",	"Casey City", "Darebin City",	"Frankston City",	"Glen Eira City",	"Greater Dandenong City",	"Hobsons Bay City",	"Hume City",	"Kingston City",	"Knox City",	"Manningham City",	"Maribyrnong City",	"Maroondah City",	"Melbourne City",	"Melton City",	"Merri-Bek City",	"Monash City",	"Moonee Valley City",	"Mornington Peninsula Shire",	"Nillumbik Shire",	"Port Phillip City",	"Stonnington City",	"Whitehorse City",	"Whittlesea City",	"Wyndham City", "Yarra City",	"Yarra Ranges Shire")
+
+melbourne_lga <- c("Hobsons Bay City", "Maribyrnong City", "Moonee Valley City","Merri-Bek City", "Melbourne City", "Port Phillip City", "Stonnington City", "Yarra City", "Darebin City","Boroondara City", "Glen Eira City")
+station <- train |>
+  filter(station_name %in% sample) 
+  
+
+
+
+## ----eval=FALSE---------------------------------------------------------------
+#> download.file("https://data.gov.au/data/dataset/bdf92691-c6fe-42b9-a0e2-a4cd716fa811/resource/38a8a499-928c-4de6-b6d2-2fceb74870a9/download/gda94.zip", destfile = "VICLGA.zip")
+#> 
+#> unzip("VICLGA.zip")
+#> 
+
+
+## ----fig.cap="Patronage During Different Peak Times"--------------------------
+
+vic_lga <- read_sf("GDA94/vic_lga.shp") |>
+  filter(LGA_NAME %in% melbourne_lga)
+
+AM_peak <- station |> 
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = month_year, y_minor = min_AM_peak,
+             yend_minor = max_AM_peak)) + 
+  geom_sf(data = vic_lga, color = "white",
+          fill = "antiquewhite", inherit.aes = FALSE) +
+  add_glyph_boxes(width = rel(0.04), height = rel(0.02),
+                  color = "#A66E38") +
+  add_ref_lines(width = rel(0.04), height = rel(0.02),
+                color = "#A66E38") +
+  geom_glyph_segment(width = rel(0.04), height = rel(0.02),
+                     global_rescale = FALSE,
+                     color = "#A66E38", fill = "#A66E38") +
+  theme_glyph() +
+  labs(title = "Morning Peak Traffic")
+
+
+PM_peak <- station |> 
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = month_year, y_minor = min_PM_peak,
+             yend_minor = max_PM_peak)) + 
+  geom_sf(data = vic_lga, color = "white",
+          fill = "antiquewhite", inherit.aes = FALSE) +
+  add_glyph_boxes(width = rel(0.04), height = rel(0.02),
+                  color = "#A66E38") +
+  add_ref_lines(width = rel(0.04), height = rel(0.02),
+                color = "#A66E38") +
+  geom_glyph_segment(width = rel(0.04), height = rel(0.02),
+                     global_rescale = FALSE,
+                     color = "#A66E38", fill = "#A66E38") +
+  theme_glyph() +
+  labs(title = "Evening Peak Traffic")
+
+grid.arrange(AM_peak, PM_peak, ncol =2)
 

@@ -2,7 +2,7 @@
 \title{sugarglider: Create glyphmaps of spatio-temporal data}
 
 
-\author{by Maliny Po and Dianne Cook}
+\author{by Maliny Po, Nathan Shuyuan Yang, and Dianne Cook}
 
 \maketitle
 
@@ -21,65 +21,24 @@ Note: use similar terminology as cubble & glyph-maps. Add a quick start (quick g
 \section{Literature Review}\label{literature-review}}
 
 \hypertarget{glyph-maps}{%
-\subsubsection{Glyph Maps}\label{glyph-maps}}
+\subsection{Glyph-maps}\label{glyph-maps}}
 
-\begin{itemize}
-\item
-  Glyph maps are a specific type of multivariate glyph plots where each spatial location is represented by a glyph that encapsulates data measured over time at that location. As detailed in \href{https://vita.had.co.nz/papers/glyph-maps.pdf}{Hadley Wickham's} paper, glyph maps are particularly effective for uncovering both local and global structures, emphasizing temporal relationships within the data. These maps utilize small glyphs or icons to represent multiple data values at each location, extending the concept of glyphs which are traditionally used to display multivariate data.
-\item
-  Challenges with Faceted Maps and Spatio-Temporal Animations: While faceted maps and spatio-temporal animations are useful for highlighting spatial patterns, they often fall short in adequately showcasing temporal trends. To overcome this, a transformation technique is employed which utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as \href{https://cran.r-project.org/web/packages/GGally/GGally.pdf}{GGally} and \href{https://www.jstatsoft.org/article/view/v110i07}{cubble}, facilitating a more integrated approach to spatio-temporal data visualization.
-\item
-  The R package \href{https://www.jstatsoft.org/article/view/v110i07}{cubble} introduces an innovative cubble class designed to efficiently organize spatial and temporal variables. This dual structure allows for separate or combined manipulation of these variables while maintaining synchronization. A spatial cubble object is constructed from distinct spatial and temporal tables through the function make\_cubble(), requiring the specification of three attributes: key, index, and coords. This functionality not only simplifies the data wrangling process but also enhances the analytical capabilities when dealing with complex datasets.
-\end{itemize}
+Glyph maps are specialized forms of multivariate glyph plots that represent each spatial location with a glyph, summarizing data collected over time at that location. As detailed in the paper by Wickham et al. (2012), glyph maps are a refined type of multivariate glyph plots in which each spatial location is depicted by a single glyph that encapsulates data collected over time at that point. These maps are instrumental in uncovering both local and global patterns, particularly emphasizing temporal relationships.
+
+The construction of a glyph map evolves around a transformation technique that utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as \texttt{GGally} by Schloerke et al. (2024) and \texttt{cubble} by Zhang et al. (2024), facilitating a more integrated approach to spatio-temporal data visualization.
+
+In order for a plot to be useful for a specific data analysis task, it should make primary comparisons easy to see. Mapping values to position is one of the easiest properties to perceive (Cleveland and McGill (1984)). Glyph-maps facilitate the display of changes in slope, trend, average value, and variance over time. They organize the graphical elements necessary for temporal comparisons. However, glyph-maps, especially when representing linear trends as icons, may be subject to the Zöllner Illusion, which distorts straight lines. Therefore, accurate perception of change requires the implementation of reference frames and scaling (Wickham et al. (2012))
 
 \hypertarget{extending-ggplot2-with-ggproto}{%
-\subsubsection{Extending ggplot2 with ggproto}\label{extending-ggplot2-with-ggproto}}
+\subsection{Extending ggplot2 with ggproto}\label{extending-ggplot2-with-ggproto}}
 
-\begin{verbatim}
- Diversify your resources a bit :((
-\end{verbatim}
+The architecture of ggplot2 is based on the ggproto system of object-oriented programming. nitially, ggplot2 relied on the proto system for object-oriented tasks, an S3 subclass of the R environment class. Proto objects are manipulated using the proto function, which sets the parent environment, evaluates expressions, and manages lazy evaluation of arguments (Grothendieck, Kates, and Petzoldt (2016)).
 
-\begin{itemize}
-\tightlist
-\item
-  Elegant Graphics for Data Analysis: The architecture of ggplot2 is fundamentally based on the ggproto system of object-oriented programming. Initially, ggplot2 utilized the proto system, developed by Grothendieck, Kates, and Petzoldt in 2016, for object-oriented tasks. This system, described in detail in the \href{https://cran.r-project.org/web/packages/proto/proto.pdf}{Proto package documentation},
-  outlines that proto is an S3 subclass of the R environment class, implying single inheritance and mutable state characteristic of all environments. Proto objects are created and modified using the proto function which sets the parent environment, evaluates expressions, and handles lazy evaluation of arguments.
-\end{itemize}
-
-However, as the need for an official extension mechanism in ggplot2 grew, the limitations of the proto system became apparent, leading to the adoption of ggproto. This transition is well-documented in Hadley Wickham's book, \href{https://ggplot2-book.org/}{ggplot2: Elegant Graphics for Data Analysis}, which also introduces how to utilize ggproto objects to extend ggplot2 functionalities.
+As the demand for an official extension mechanism in ggplot2 increased, the limitations of the proto system became evident, prompting the adoption of ggproto. This transition is documented in Wickham (2016), which also introduces how to utilize ggproto objects to extend ggplot2 functionalities.
 
 The creation of a new ggproto object is facilitated by the ggproto() function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from \texttt{Stat} and \texttt{Geom.} However, merely creating a ggproto object does not make it accessible or useful to the end user.
 
-(Example from ggplot2-book.org)
-
-\begin{verbatim}
-NewObject <- ggproto(
-  `_class` = NULL, 
-  `_inherits` = NULL
-)
-\end{verbatim}
-
-To bridge this gap, the creation of a layer function is necessary. An example is the \texttt{new\_stat()} function, which follows a consistent format: setting defaults in the function arguments, and calling layer(), which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics. This function exemplifies the methodology to create functional and user-accessible components in ggplot2.
-
-(Example from ggplot2-book.org)
-
-\begin{verbatim}
-new_stat <- function(mapping = NULL, data = NULL, 
-                       geom = "geometry", position = "identity", 
-                       na.rm = FALSE, show.legend = NA, 
-                       inherit.aes = TRUE, ...) {
-  layer(
-    stat = NewStat, 
-    data = data, 
-    mapping = mapping, 
-    geom = geom, 
-    position = position, 
-    show.legend = show.legend, 
-    inherit.aes = inherit.aes, 
-    params = list(na.rm = na.rm, ...)
-  )
-}
-\end{verbatim}
+To bridge this gap, the creation of a layer function is necessary. An example is the \texttt{new\_stat()} function, which follows a consistent format: setting defaults in the function arguments, and calling \texttt{layer()}, which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics.
 
 While developing ggplot2 extensions, it may seem intuitive to encapsulate extensions as new geoms, as they are frequently used by users to add layers to a plot. However, the diversity in ggplot2's capabilities often stems more from the variety in statistical transformations (stats) than merely geometric objects (geoms), suggesting a nuanced approach in designing extensions that effectively enhance the plotting system.
 
@@ -88,7 +47,13 @@ While developing ggplot2 extensions, it may seem intuitive to encapsulate extens
 
 The \texttt{sugarglider} package extends the capabilities of ggplot2 by introducing functions specifically designed for visualizing seasonal patterns in spatio-temporal data. It includes \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()} , which represent measurements recorded over time at specific locations through the use of glyph maps. These functions enable clear depictions of seasonal trends by leveraging the combination of \emph{x\_major} and \emph{y\_major} coordinates.
 
-The package supports the creation of glyph plots using either ribbon or segment geometries. The core functionality is outlined as follows:
+The structure of glyph maps in \texttt{sugarglider} consists of four main layers: the base map, glyph boxes, reference lines, and ribbon or segment glyphs. Additionally, users can create a legend, adding an extra layer to the glyph maps. Apart from the base map, \texttt{sugarglider} offers functionalities to generate all the elements of a comprehensive glyph map, as illustrated in the figure below.
+
+\begin{figure}
+\includegraphics[width=49.22in]{figures/glyphmap-layers} \caption{The diagram depicts the structure of a glyph-map. The initial layer represents the base map, which can be generated using ggplot2::geom_sf() and ggplot2::geom_polygon(). Subsequent layers comprise of glyph boxes and reference lines, which are generated through add_glyph_boxes() and add_ref_lines() respectively. The fourth layer encompasses the glyph itself, offering users the choice to depict ribbon glyphs (geom_glyph_ribbon()) or segment glyphs (geom_segment_glyph()). The legend layer is optional. It enabling users to display a legend—a magnified version of one of the glyphs—using add_glyph_legend().}\label{fig:unnamed-chunk-1}
+\end{figure}
+
+Each layer can be plotted independently, and the package supports the creation of glyph plots using either ribbon or segment geometries. The core functionality includes:
 
 \begin{itemize}
 \item
@@ -97,7 +62,7 @@ The package supports the creation of glyph plots using either ribbon or segment 
   \texttt{geom\_glyph\_segment()}: Connects \emph{y\_minor} to \emph{yend\_minor} with a straight line using \texttt{geom\_segment()} from ggplot2, resulting in segment glyphs. Each glyph is plotted based on the combination of \emph{x\_major} and \emph{y\_major} coordinates.
 \end{itemize}
 
-In addition to these two functions, sugarglider offers several other features that enhance the customization of glyph maps. The \texttt{add\_ref\_box()} function introduces reference boxes that visually frame individual glyphs, helping to define boundaries and distinguish glyphs from each other. The \texttt{add\_ref\_line()} function draws a horizontal midpoint for each glyph, facilitating comparisons across data points. The \texttt{add\_glyph\_legend()} function allows users to display an enlarged version of a randomly chosen glyph in the bottom-left corner of the panel, enabling users to visualize the data range. Lastly, the \texttt{theme\_glyph()} function provides a customized theme for glyph maps, built on top of \texttt{theme\_map()} from \texttt{ggthemes}. It adjusts the plot's appearance, including the legend position, text styles, and background settings, to create a clean, visually consistent layout for glyph visualizations.
+In addition to these two functions, \texttt{sugarglider} offers several other features that enhance the customization of glyph maps. The \texttt{add\_ref\_box()} function introduces reference boxes that visually frame individual glyphs, helping to define boundaries and distinguish glyphs from each other. The \texttt{add\_ref\_line()} function draws a horizontal midpoint for each glyph, facilitating comparisons across data points. The \texttt{add\_glyph\_legend()} function allows users to display an enlarged version of a randomly chosen glyph in the bottom-left corner of the panel, enabling users to visualize the data range. Lastly, the \texttt{theme\_glyph()} function provides a customized theme for glyph maps, built on top of \texttt{theme\_map()} from \texttt{ggthemes}. It adjusts the plot's appearance, including the legend position, text styles, and background settings, to create a clean, visually consistent layout for glyph visualizations.
 
 \begin{verbatim}
 # Ribbon glyph
@@ -128,15 +93,15 @@ vic_temp |>
 \begin{figure}
 \centering
 \includegraphics{sugarglider_files/figure-latex/comparisonPlot-1.pdf}
-\caption{\label{fig:comparisonPlot}Comparison between ribbon and segment glyph-maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divide each glyph midway, assisting users in making inferences about the plot. Additional coding is required to establish the base map and adjust the width and height of each glyph.}
+\caption{\label{fig:comparisonPlot}A comparison between ribbon and segment glyph-maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph.}
 \end{figure}
 
-The sugarglider package offers a variety of customization options for enhanced visualization flexibility. It includes features such as the \emph{global\_rescale} argument, which allows for choosing between global or individual glyph scaling. Users can also adjust the scaling of minor values within grid cells, as well as the overall width and height of glyphs, ensuring that glyph-map can be finely tuned to meet specific data representation needs. The following section will explore these features in greater detail and provide practical examples that illustrate their application within different visualization contexts.
+The \texttt{sugarglider} package provides various customization options for more flexible visualization. It includes features such as the \texttt{global\_rescale} argument, which allows users to choose between global or individual glyph scaling. Users can also adjust the scaling of minor values within grid cells, as well as the overall width and height of glyphs. This ensures that the glyph-map can be finely tuned to meet specific data representation needs. The following section will explore these features in greater detail and provide practical examples that illustrate their application within different visualization contexts.
 
 \hypertarget{aesthetics}{%
 \subsubsection{Aesthetics}\label{aesthetics}}
 
-sugarglider provides the same aesthetics for \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()} as those available in \texttt{geom\_ribbon()} and \texttt{geom\_segment()} from ggplot2. To include a variable in the glyph plot, it must be specified as an aesthetic. The functions in sugarglider expect spatial coordinates as the major axis and temporal data, along with some measurements, as the minor axis.
+\texttt{sugarglider} provides the same aesthetics for \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()} as those available in \texttt{geom\_ribbon()} and \texttt{geom\_segment()} from ggplot2. To include a variable in the glyph plot, it must be specified as an aesthetic. The functions in \texttt{sugarglider} expect spatial coordinates as the major axis and temporal data, along with some measurements, as the minor axis.
 
 To produce glyph-maps, the following aesthetics are required:
 
@@ -159,7 +124,7 @@ Description
 \texttt{y\_minor}, \texttt{yend\_minor} & Used by \texttt{geom\_glyph\_segment()} to set the start and end points of the segment geometry within each glyph. \\
 \end{longtable}
 
-The functions \texttt{add\_ref\_box()}, \texttt{add\_ref\_line()}, and \texttt{add\_geom\_legend()} are compatible with either \emph{ymin\_minor}, \emph{ymax\_minor}, or \emph{y\_minor}, \emph{yend\_minor}. Additionally, sugarglider introduces several customizable options to further tailor the visual aspects:
+The functions \texttt{add\_ref\_box()}, \texttt{add\_ref\_line()}, and \texttt{add\_geom\_legend()} are compatible with either \emph{ymin\_minor}, \emph{ymax\_minor}, or \emph{y\_minor}, \emph{yend\_minor}. Additionally, \texttt{sugarglider} introduces several customizable options to further tailor the visual aspects:
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2000}}
@@ -187,11 +152,11 @@ Description
 \hypertarget{options}{%
 \subsubsection{Options}\label{options}}
 
-Options within the sugarglider package allow you to tailor the behavior of your visualizations to meet the specific needs of your analysis. The \emph{global\_rescale} argument provides control over whether rescaling should occur globally across all data points or be handled individually for each glyph.
+Options within the \texttt{sugarglider} package allow you to tailor the behavior of your visualizations to meet the specific needs of your analysis. The \emph{global\_rescale} argument provides control over whether rescaling should occur globally across all data points or be handled individually for each glyph.
 
-sugarglider also offers a variety of customizable features to enhance the flexibility and precision of visualizations. For example, it facilitates the scaling of minor values within the glyph along both the x and y axes. Users can specify their own rescale function by replacing \emph{``identity''} with a custom function in \emph{x\_scale} and \emph{y\_scale}. If a user wishes to modify the rescaling function on only one axis, they can replace the value of the corresponding parameter with their chosen function and retain ``identity'' for the other. In this package, ``identity'' rescales the minor axes to an interval of {[}-1,1{]}. The impact of rescaling on glyphs and its implications for visual interpretation will be thoroughly discussed in the upcoming section.
+\texttt{sugarglider} also offers a variety of customizable features to enhance the flexibility and precision of visualizations. For example, it facilitates the scaling of minor values within the glyph along both the x and y axes. Users can specify their own rescale function by replacing \emph{``identity''} with a custom function in \emph{x\_scale} and \emph{y\_scale}. If a user wishes to modify the rescaling function on only one axis, they can replace the value of the corresponding parameter with their chosen function and retain ``identity'' for the other. In this package, ``identity'' rescales the minor axes to an interval of {[}-1,1{]}. The impact of rescaling on glyphs and its implications for visual interpretation will be thoroughly discussed in the upcoming section.
 
-Additionally, the width and height of the glyphs are adjustable, allowing users to modify the appearance of each glyph to match the dimensions and scaling of the data being visualized. These customization options ensure that sugarglider can adapt to a broad range of data types and requirements, making it a versatile tool for seasonal spatiotemporal data visualization.
+Additionally, the width and height of the glyphs are adjustable, allowing users to modify the appearance of each glyph to match the dimensions and scaling of the data being visualized. These customization options ensure that \texttt{sugarglider} can adapt to a broad range of data types and requirements, making it a versatile tool for seasonal spatiotemporal data visualization.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2000}}
@@ -216,17 +181,12 @@ Description
 \texttt{global\_rescale} & \texttt{TRUE} & Determines whether rescaling is applied globally across all glyphs or individually for each glyph \\
 \end{longtable}
 
-\hypertarget{interactivity}{%
-\subsubsection{Interactivity}\label{interactivity}}
-
-(\ldots)
-
 \hypertarget{data-structure}{%
 \subsubsection{Data structure}\label{data-structure}}
 
-The initial step in utilizing the sugarglider package for creating glyph plots is to ensure your data is in the correct format. There are two data structures to consider as per Zhang et al. (2024), one of which is compatible with sugarglider. The package supports data structured in a long format that incorporates both temporal and spatial elements.
+When using the \texttt{sugarglider} package to create glyph plots, the first step is to ensure that your data is in the correct format. There are two data structures to consider as per Zhang et al. (2024), and one of them is compatible with \texttt{sugarglider}. The package supports data structured in a long format that includes both temporal and spatial elements.
 
-An illustrative dataset included in the package is \texttt{aus\_temp}. Sourced from The National Oceanic and Atmospheric Administration (NOAA), this dataset provides a comprehensive set of climate data from 29 stations across Australia for the year 2020. It incorporates essential climate variables, including precipitation and temperature. The dataset also contains key spatial elements (longitude and latitude) and temporal elements (month), along with temperature ranges. These temperature ranges are vital for determining the widths of the ribbon and segment plots in glyph-maps.
+\texttt{sugarglider} includes an dataset called \texttt{aus\_temp}, which is sourced from The National Oceanic and Atmospheric Administration (NOAA). This dataset provides a comprehensive set of climate data from 29 stations across Australia for the year 2020. It includes important climate variables such as precipitation and temperature, as well as key spatial elements (longitude and latitude) and temporal elements (month), along with temperature ranges. These temperature ranges are crucial for determining the widths of the ribbon and segment plots in glyph-maps.
 
 \begin{verbatim}
 glimpse(aus_temp)
@@ -244,16 +204,16 @@ glimpse(aus_temp)
 #> $ prcp  <dbl> 163.87096774, 162.74074074, 42.00000000, 21.57142857, 0.00000000~
 \end{verbatim}
 
-Datasets do not always contain both spatial and temporal elements. Analysts frequently begin with station data that includes geographic locations, recorded variables, and the measurement periods of these variables. To extract relevant data, they can query the temporal variables for specific stations of interest. In some cases, analysts might begin with purely spatial or purely temporal data, which then needs additional elements to transform it into a spatio-temporal format.
+Datasets may not always include both spatial and temporal elements. Analysts often start with station data that provides geographic locations, recorded variables, and the time periods of these variables. To extract relevant data, they can query the temporal variables for specific stations of interest. In some cases, analysts may start with purely spatial or purely temporal data, which then requires additional elements to transform it into a spatio-temporal format.
 
-For these scenarios, the cubble package offers functions such as \texttt{make\_cubble()} that help users structure their data into \emph{``cubble''} objects, which are optimized for use with glyph-maps. This structuring facilitates the creation of detailed and insightful spatio-temporal visualizations, allowing the data to be seamlessly integrated into the sugarglider package.
+For these situations, the \texttt{cubble} package offers functions such as \texttt{make\_cubble()} to help users structure their data into \textbf{cubble} objects, which are optimized for use with glyph-maps. This structuring facilitates the creation of detailed and insightful spatio-temporal visualizations, enabling the data to be seamlessly integrated into the \texttt{sugarglider} package.
 
 \hypertarget{rescale}{%
 \subsubsection{Rescale}\label{rescale}}
 
-In sugarglider, rescaling is a crucial preprocessing step applied to the minor axes, which are the data used to plot individual glyphs. This rescaling prepares the data for a linear transformation that maps temporal data onto a spatial representation. This important process will be explored in greater detail in the subsequent section. The rescaling mechanism is governed by two parameters: \emph{x\_scale} and \emph{y\_scale}. The \emph{x\_scale} parameter adjusts the minor values along the x-dimension within each glyph, while \emph{y\_scale} modifies them along the y-dimension.
+In \texttt{sugarglider}, rescaling is a crucial preprocessing step applied to the minor axes, which are the data used to plot individual glyphs. This rescaling prepares the data for a linear transformation that maps temporal data onto a spatial representation. This important process will be explored in greater detail in the subsequent section. The rescaling mechanism is governed by two parameters: \emph{x\_scale} and \emph{y\_scale}. The \emph{x\_scale} parameter adjusts the minor values along the x-dimension within each glyph, while \emph{y\_scale} modifies them along the y-dimension.
 
-By default, the rescaling function is set to ``identity'', which adjusts the minor axes to fit within the interval {[}-1, 1{]}. However, users can customize the rescaling function by replacing the default settings for \emph{x\_scale} and \emph{y\_scale} with their own functions. For example, the following code demonstrates a custom rescale function that transforms values to fit within the interval {[}0, 1{]}. When this custom rescale is applied, the resulting ribbon in the plot appears significantly thinner compared to the previous example, which used the default rescaling settings.
+By default, the rescaling function is set to ``identity'', which adjusts the minor axes to fit within the interval {[}-1, 1{]}. However, users can customize the rescaling function by replacing the default settings for \emph{x\_scale} and \emph{y\_scale} with their own functions. For example, the following code demonstrates a custom rescale function that transforms values to fit within the interval {[}0, 1{]}. When this custom rescale is applied, the resulting ribbon in the plot appears significantly thinner compared to the previous example, which used the default rescaling settings
 
 \begin{verbatim}
 # Default rescale 
@@ -292,7 +252,7 @@ nsw_temp |>
 
 To fully grasp the impact of rescaling on the mapping of temporal data to glyphs, it's important to consider how this process applies to both \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()}. The transformation of spatio-temporal data into visual representations will be explored in greater detail in the next section.
 
-Additionally, sugarglider gives users the flexibility to choose whether rescaling is applied globally across all glyphs or individually for each glyph. This behavior is controlled by the \emph{global\_rescale} parameter, which defaults to \emph{TRUE}. When \emph{global\_rescale} is set to \emph{FALSE}, users can implement local rescaling, allowing each glyph to be scaled independently. The difference between global and local rescaling is evident in the following example:
+Additionally, \texttt{sugarglider} gives users the flexibility to choose whether rescaling is applied globally across all glyphs or individually for each glyph. This behavior is controlled by the \texttt{global\_rescale} parameter, which defaults to \emph{TRUE}. When \texttt{global\_rescale} is set to \emph{FALSE}, users can implement local rescaling, allowing each glyph to be scaled independently. The difference between global and local rescaling is evident in the following example:
 
 \begin{verbatim}
 # Global rescale
@@ -324,11 +284,11 @@ aus_temp |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-5-1.pdf}
-\caption{\label{fig:unnamed-chunk-5}The figure highlights the impact of global and local rescaling on segment glyphs. With global rescaling, the temperature range is uniform across all glyphs, allowing users to compare variation in temperature between stations across Australia. In contrast, with local rescaling, the temperature range varies between glyphs, enabling more detailed insights into the temperature distribution at individual stations. Additional code is required to plot the base map and specify the xlim for the sf coordinates.}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-6-1.pdf}
+\caption{\label{fig:unnamed-chunk-6}The figure highlights the impact of global and local rescaling on segment glyphs. With global rescaling, the temperature range is uniform across all glyphs, allowing users to compare variation in temperature between stations across Australia. In contrast, with local rescaling, the temperature range varies between glyphs, enabling more detailed insights into the temperature distribution at individual stations. Additional code is required to plot the base map and specify the xlim for the sf coordinates.}
 \end{figure}
 
-The rescaling process in sugarglider involves several steps. First, the function checks for any custom scaling based on the \emph{x\_scale} and \emph{y\_scale} parameters. It then groups the data based on the designated grouping variable to ensure that each glyph is drawn as a distinct path. If \emph{global\_rescale} is set to TRUE, the data is ungrouped before rescaling the minor axes, ensuring consistent scaling across all glyphs. Conversely, if \emph{global\_rescale} is set to *FALSE8, the data remains grouped, resulting in local scaling for each individual glyph.
+The rescaling process in \texttt{sugarglider} involves several steps. First, the function checks for any custom scaling based on the \texttt{x\_scale} and \texttt{y\_scale} parameters. It then groups the data based on the designated grouping variable to ensure that each glyph is drawn as a distinct path. If \texttt{global\_rescale} is set to \emph{TRUE}, the data is ungrouped before rescaling the minor axes, ensuring consistent scaling across all glyphs. Conversely, if \texttt{global\_rescale} is set to \emph{FALSE}, the data remains grouped, resulting in local scaling for each individual glyph.
 
 For both \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()}, rescaling is applied separately to the \texttt{ymin\_minor} and \texttt{ymax\_minor} values, or to the `y\_minor and yend\_minor values, respectively. This ensures that both the lower and upper bounds are adjusted independently to fit within the specified scale, maintaining accuracy and clarity in the visualization.
 
@@ -336,45 +296,35 @@ For both \texttt{geom\_glyph\_ribbon()} and \texttt{geom\_glyph\_segment()}, res
 \subsubsection{Spatial-temporal transformation}\label{spatial-temporal-transformation}}
 
 \begin{figure}
-\includegraphics[width=17.71in]{figures/diagram-transformation} \caption{Diagram highlights how spatial data (geographical location) is combined with temporal data (measurements over time) to create a spatio-temporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns over time across different spatial locations.}\label{fig:unnamed-chunk-6}
+\includegraphics[width=17.71in]{figures/diagram-transformation} \caption{Diagram highlights how spatial data (geographical location) is combined with temporal data (measurements over time) to create a spatio-temporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns over time across different spatial locations.}\label{fig:unnamed-chunk-7}
 \end{figure}
 
 The construction of a glyph map, as described in Wickham et al. (2012), involves a linear combination of two key structural components: spatial location and data values. In this context, the major axes represent the spatial coordinates, latitude (\(y_{major}\)) and longitude (\(x_{major}\)), while the minor axes correspond to time (\(x_{minor}\)) and a measurement of interest (\(ymax_{minor}\) and \(ymin_{minor}\)). For segment glyphs, the measurement is represented by \(y_{minor}\) and \(yend_{minor}\).
 
 Once the minor axes are rescaled to the interval {[}-1, 1{]}, the final coordinates for the ribbon glyph are determined through a linear transformation, as follows:
 
-\[
-x = x_{major} + \frac{width}{2} \cdot x_{minor}
-\]
+\begin{aligned}
+\text{x} &= \text{x}_{\text{major}} + \frac{\text{width}}{2} \cdot \text{x}_{\text{minor}} \\
+\text{ymin} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{ymin}_{\text{minor}} \\
+\text{ymax} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{ymax}_{\text{minor}}
 
-\[
-ymin = y_{major} + \frac{height}{2} \cdot ymin_{minor}
-\]
-
-\[
-ymax = y_{major} + \frac{height}{2} \cdot ymax_{minor}
-\]
+\end{aligned}
 
 Similarly, the coordinates for the segment glyph are computed as:
 
-\[
-x = x_{major} + \frac{width}{2} \cdot x_{minor}
-\]
+\begin{aligned}
+\text{x} &= \text{x}_{\text{major}} + \frac{\text{width}}{2} \cdot \text{x}_{\text{minor}} \\
+\text{y} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{y}_{\text{minor}} \\
+\text{yend} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{yend}_{\text{minor}}
 
-\[
-y = y_{major} + \frac{height}{2} \cdot y_{minor}
-\]
-
-\[
-yend = y_{major} + \frac{height}{2} \cdot yend_{minor}
-\]
+\end{aligned}
 
 This linear transformation ensures that the temporal and data components are properly aligned with the spatial coordinates, enabling a clear and accurate visualization of spatio-temporal data.
 
 \hypertarget{examples}{%
 \subsubsection{Examples}\label{examples}}
 
-The \texttt{aus\_temp} dataset is used to demonstrate the functionality of the sugarglider package. Using the default rescaling parameters, we can visualize temperature data with \texttt{geom\_glyph\_segment()}, alongside \texttt{geom\_point()} that mark the location of each weather station. Each segment glyph represents local climate data, providing an intuitive way to explore temperature variations across Australia.
+The \texttt{aus\_temp} dataset is used to demonstrate the functionality of the \texttt{sugarglider} package. Using the default rescaling parameters, we can visualize temperature data with \texttt{geom\_glyph\_segment()}, alongside \texttt{geom\_point()} that mark the location of each weather station. Each segment glyph represents local climate data, providing an intuitive way to explore temperature variations across Australia.
 
 The default identity scaling function is applied to each set of minor values within each glyph. This method centers the glyphs both vertically and horizontally based on the station's coordinates and adjusts the minor axes to fit within the interval {[}-1, 1{]}. This ensures that the glyphs are appropriately scaled and sized to fit within the defined dimensions of the glyph.
 
@@ -395,8 +345,8 @@ aus_temp |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-8-1.pdf}
-\caption{\label{fig:unnamed-chunk-8}Additional codes are needed for base map}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-9-1.pdf}
+\caption{\label{fig:unnamed-chunk-9}Daily temperature variations across Australian weather stations are visualized using Geom points to display the weather station locations. Additional codes are required for the base map.}
 \end{figure}
 
 The previous segment glyph map used global rescaling (enabled by default), meaning the glyphs were sized relative to one another based on their data values. By disabling global rescaling, we can observe the effects of local rescaling, where each glyph is resized according to its individual values.
@@ -427,8 +377,8 @@ aus_temp |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-10-1.pdf}
-\caption{\label{fig:unnamed-chunk-10}Additional codes are needed for base map, and additonal theme customisation}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-11-1.pdf}
+\caption{\label{fig:unnamed-chunk-11}Precipitation and Temperature Ranges Across Australia. Each glyph is color coded based on the level of precipitation, with sky blue representing the lowest and navy blue representing the highest. Additional codes are needed for the base map and additional theme customization.}
 \end{figure}
 
 To compare temperature trends across different years for specific regions in Victoria, \texttt{geom\_glyph\_ribbon()} offers an effective way to visualize how temperatures have evolved over time. Each year is distinguished by a different color, making the trends clear and easy to interpret.
@@ -449,8 +399,8 @@ historical_temp |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-12-1.pdf}
-\caption{\label{fig:unnamed-chunk-12}Additonal codes are needed for base map, title and additonal theme customisation}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-13-1.pdf}
+\caption{\label{fig:unnamed-chunk-13}Temperature Trends in Selected Victorian Weather Stations. Additional codes are required for the base map, title, and further theme customization.}
 \end{figure}
 
 To further improve map readability, the \texttt{add\_geom\_legend()} function integrates an enlarged version of one of the glyphs in the bottom left corner of the plot. This legend helps users interpret the data scale more effectively.
@@ -472,13 +422,13 @@ aus_temp |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-14-1.pdf}
-\caption{\label{fig:unnamed-chunk-14}Additonal code are needed for base map and additional theme customisation}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-15-1.pdf}
+\caption{\label{fig:unnamed-chunk-15}Temperature Ranges Across Australia with Glyph Legend. Additional code is needed for the base map and additional theme customization.}
 \end{figure}
 
-In the following example, flight data is used to demonstrate the interactive glyph map capabilities of sugarglider. The U.S. Department of Transportation (DOT) Bureau of Transportation Statistics, which monitors the on-time performance of domestic flights operated by major U.S. airlines. Each month, the DOT publishes the Air Travel Consumer Report, summarizing on-time, delayed, canceled, and diverted flights.
+In this example, the \texttt{flight} data is used to showcase the interactive glyph map features of \texttt{sugarglider}. The U.S. Department of Transportation (DOT) Bureau of Transportation Statistics monitors the on-time performance of domestic flights operated by major U.S. airlines. Each month, the DOT publishes the Air Travel Consumer Report, summarizing on-time, delayed, canceled, and diverted flights.
 
-This dataset, sourced from the Kaggle Airline Flight Delay and Cancellation data, has been processed and aggregated to display the minimum and maximum number of flights originating from the top 10 U.S. airports with the highest cancellation rates.
+This dataset, obtained from the Kaggle Airline Flight Delay and Cancellation data, has been processed and aggregated to display the minimum and maximum number of flights originating from the top 10 U.S. airports with the highest cancellation rates.
 
 \begin{table}
 \centering
@@ -501,7 +451,7 @@ ATL & 6 & -84.42806 & 33.63667 & 1119 & 3473\\
 \end{tabular}
 \end{table}
 
-This example showcases the functionality of \texttt{geom\_glyph\_segment()}, displaying the monthly range of flights for each airport and offering insights into how flight numbers fluctuate over time. Additionally, \texttt{geom\_glyph\_ribbon()} is used to visualize the variation between the minimum and maximum number of flights from each airport, providing a clear depiction of the spread in flight activity.
+This example demonstrates the functionality of \texttt{geom\_glyph\_segment()}, which shows the monthly range of flights for each airport and provides insights into how flight numbers change over time. Additionally, \texttt{geom\_glyph\_ribbon()} is used to visualize the variation between the minimum and maximum number of flights from each airport, offering a clear depiction of the spread in flight activity.
 
 \begin{verbatim}
 # Specify tooltip for ggiraph 
@@ -522,12 +472,16 @@ fl <- flights |>
   theme_glyph()
 
 # Interactive plot using ggiraph
-# girafe(ggobj = fl)
+girafe(ggobj = fl)
 \end{verbatim}
 
-This plot displays the minimum and maximum number of flights departing from each airport on a spatial map. Each line segment represents the flight range for a respective airport, with the length of the segment indicating variability in flight numbers across different locations. Notably, airports like ATL and ORD typically handle a higher volume of departing flights compared to airports such as MCO and PHX. Additionally, all airports show fluctuations throughout the year, with wider flight intervals mid-year and narrower intervals during the holiday season at year-end.
+\begin{figure}
+\includegraphics[width=15.14in]{figures/monthly-flight-variability} \caption{Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization.}\label{fig:unnamed-chunk-19}
+\end{figure}
 
-The graph highlights that airports in certain regions experience more variability than others. While the segment plots provide a clear estimation of this variability, geom\_glyph\_ribbon() enhances understanding by visually representing the gap between the minimum and maximum flights. Wider ribbons suggest greater month-to-month fluctuations in flight operations.
+This visualization shows the range of departing flights from each airport on a map. Each line represents the flight range for a specific airport, with the length of the line showing the variability in flight numbers across different locations. Notably, airports like ATL and ORD generally handle a higher volume of departing flights compared to airports such as MCO and PHX. All airports exhibit fluctuations throughout the year, with wider flight intervals in the middle of the year and narrower intervals during the holiday season at year-end.
+
+The graph highlights that airports in certain regions experience more variability than others. While the line plots provide a clear estimate of this variability, the use of geom\_glyph\_ribbon() enhances understanding by visually representing the gap between the minimum and maximum flights. Wider ribbons indicate greater month-to-month fluctuations in flight operations.
 
 \begin{verbatim}
 # South Region
@@ -555,8 +509,8 @@ flights |>
 
 \begin{figure}
 \centering
-\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-19-1.pdf}
-\caption{\label{fig:unnamed-chunk-19}Additonal code are needed for base map and additional theme customisation}
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-21-1.pdf}
+\caption{\label{fig:unnamed-chunk-21}Comparison of flight patterns between the western and southern regions. Additional codes are needed for the base map and additional theme customization.}
 \end{figure}
 
 \texttt{geom\_glyph\_ribbon()} effectively highlights the disparities in flight volume between regions. The Western region exhibits a greater variation in the number of flights compared to the Southern region, as evidenced by the thicker ribbons. Notably, both regions display a significant increase in flight volume discrepancies during the mid-year, reinforcing the findings observed with \texttt{geom\_glyph\_segment()}.
@@ -564,22 +518,23 @@ flights |>
 \hypertarget{application}{%
 \section{Application}\label{application}}
 
-Five examples are selected to demonstrate various features of the sugarglider package: (1) Creating a ribbon glyph map to visualize annual fluctuations in minimum and maximum daily patronage for each train station, revealing seasonal trends. (2) Using glyph segments to compare patronage on typical weekdays versus weekends at different stations, enabling insights for optimizing service schedules. (3) Utilizing glyph ribbons to represent variations in patronage during distinct peak periods---AM peak, interpeak, PM peak, and late PM hours---across stations. (4) Displaying differences in patronage across transportation modes (Metro, VLine, or both) using glyph segments, identifying capacity imbalances. Lastly, (5) Employing glyph ribbons to compare public and school holiday patronage against regular days, aiding in scheduling and resource planning.
+\hypertarget{victoria-train-station-patronage}{%
+\subsubsection{Victoria train station patronage}\label{victoria-train-station-patronage}}
 
-\hypertarget{yearly-patronage-changes-by-station}{%
-\subsubsection{Yearly Patronage Changes by Station}\label{yearly-patronage-changes-by-station}}
+Interactive graphics are particularly useful when working with spatio-temporal data as they allow users to explore the data from multiple perspectives. The \texttt{cubble} package, exemplifies this by creating linked interactive plots using \texttt{crosswalk::bscols()} (Zhang et al. (2024)). In this paper, we will demonstrate how to create interactive glyph maps using Leaflet.
 
-\hypertarget{weekday-vs.-weekend-patronage}{%
-\subsubsection{Weekday vs.~Weekend Patronage}\label{weekday-vs.-weekend-patronage}}
+The dataset used in this example, \texttt{train}, provides a comprehensive monthly summary of daily patronage at each train station in Victoria for the fiscal year 2023-2024. To create interactive glyph maps with Leaflet, we first need to save each glyph as a PNG and then add these to the Leaflet basemap as icons. The process begins by creating a list of all unique train stations that service both metro and vline. We then iterate over each station and generate ribbon glyphs using \texttt{geom\_glyph\_ribbon()}, \texttt{add\_glyph\_boxes()} and \texttt{add\_ref\_lines()}. Each glyph is saved in PNG format, and the file paths for all the PNGs are stored in an object for the next step.
 
-\hypertarget{patronage-during-different-peak-times}{%
-\subsubsection{Patronage During Different Peak Times}\label{patronage-during-different-peak-times}}
+To create the base map for Leaflet, we use the \texttt{leaflet()} function and \texttt{addProviderTiles()} with \href{https://github.com/CartoDB/basemap-styles}{CartoDB.Positron} as the provider to achieve a light, grey map aesthetic. Additionally, a scale bar is added at the bottom left corner for reference.
 
-\hypertarget{patronage-variations-by-transportation-mode}{%
-\subsubsection{Patronage Variations by Transportation Mode}\label{patronage-variations-by-transportation-mode}}
+Next, we iterate through all the PNG files and convert them into icons using the \texttt{makeIcon()} function. Users can control the dimensions of each icon by modifying the \texttt{iconWidth} and \texttt{iconHeight} arguments. The final step is to add each icon to the Leaflet map using \texttt{addMarkers()}. Within the options argument of \texttt{addMarkers}, users can fine-tune each glyph's display properties, such as the opacity level. The \texttt{label} argument allows users to specify the information they wish to display with the hover-over effect, which in this example is set to display the station ID.
 
-\hypertarget{public-and-school-holiday-patronage-vs.-regular-days}{%
-\subsubsection{Public and School Holiday Patronage vs.~Regular Days}\label{public-and-school-holiday-patronage-vs.-regular-days}}
+\begin{figure}
+\includegraphics[width=41.28in]{figures/leaflet-screenshot} \caption{Screenshot of the leaflet map}\label{fig:unnamed-chunk-25}
+\end{figure}
+
+\includegraphics{sugarglider_files/figure-latex/unnamed-chunk-28-1.pdf}
+\#\#\# Patronage Variations by Transportation Mode
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
@@ -593,6 +548,18 @@ Five examples are selected to demonstrate various features of the sugarglider pa
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-f076b642-1914-3749-af10-4b3bcbdaef52}{}}%
+Cleveland, William S., and Robert McGill. 1984. {``Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods.''} \emph{Journal of the American Statistical Association} 79 (387): 531--54. \url{http://www.jstor.org/stable/2288400}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-proto}{}}%
+Grothendieck, Gabor, Louis Kates, and Thomas Petzoldt. 2016. \emph{Proto: Prototype Object-Based Programming}. \url{https://CRAN.R-project.org/package=proto}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-GGally}{}}%
+Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. \emph{GGally: Extension to 'Ggplot2'}. \url{https://CRAN.R-project.org/package=GGally}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Wickham2016ggplot2}{}}%
+Wickham, Hadley. 2016. \emph{Ggplot2: Elegant Graphics for Data Analysis}. Springer-Verlag New York. \url{https://ggplot2.tidyverse.org}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-wickham2012glyph}{}}%
 Wickham, Hadley, Heike Hofmann, Charlotte Wickham, and Dianne Cook. 2012. {``Glyph-Maps for Visually Exploring Temporal Patterns in Climate Data and Models.''} \emph{Environmetrics} 23 (5): 382--93.
 
@@ -610,6 +577,16 @@ Department of Econometrics and Business Statistics\\ Melbourne, Australia\\
 %
 \textit{ORCiD: \href{https://orcid.org/0009-0008-4686-6631}{0009-0008-4686-6631}}\\%
 \href{mailto:malinypo12@gmail.com}{\nolinkurl{malinypo12@gmail.com}}%
+}
+
+\address{%
+Nathan Shuyuan Yang\\
+Duke University\\%
+Durham, North Carolina\\
+%
+%
+\textit{ORCiD: \href{https://orcid.org/0009-0002-9985-1042}{0009-0002-9985-1042}}\\%
+\href{mailto:nathan.s.yang@gmail.com}{\nolinkurl{nathan.s.yang@gmail.com}}%
 }
 
 \address{%
