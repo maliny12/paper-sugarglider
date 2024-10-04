@@ -17,6 +17,14 @@ author:
     - Durham, North Carolina
     orcid: 0009-0002-9985-1042 
     email:  nathan.s.yang@gmail.com
+  - name: H. Sherry Zhang
+    affiliation:
+    - University of Texas at Austin
+    address:
+    - Department of Statistics and Data Sciences
+    - Austin, Texas
+    email: huizezhangsh@gmail.com
+    orcid: 0000-0002-7122-1463
   - name: Dianne Cook
     affiliation:
     - Monash University
