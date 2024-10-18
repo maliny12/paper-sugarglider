@@ -110,7 +110,7 @@ The `sugarglider` package extends the capabilities of ggplot2 by introducing fun
 
 The structure of glyph maps in `sugarglider` consists of four main layers: the base map, glyph boxes, reference lines, and ribbon or segment glyphs. Additionally, users can create a legend, adding an extra layer to the glyph maps. Apart from the base map, `sugarglider` offers functionalities to generate all the elements of a comprehensive glyph map, as illustrated in the figure below.
 
-```{r, fig.cap="The diagram depicts the structure of a glyph-map. The initial layer represents the base map, which can be generated using ggplot2::geom_sf() and ggplot2::geom_polygon(). Subsequent layers comprise of glyph boxes and reference lines, which are generated through add_glyph_boxes() and add_ref_lines() respectively. The fourth layer encompasses the glyph itself, offering users the choice to depict ribbon glyphs (geom_glyph_ribbon()) or segment glyphs (geom_segment_glyph()). The legend layer is optional. It enabling users to display a legend—a magnified version of one of the glyphs—using add_glyph_legend()."}
+```{r, fig.cap="The diagram depicts the structure of a glyph-map. The initial layer represents the base map. Subsequent layers comprise of glyph boxes and reference lines. The fourth layer encompasses the glyph itself, offering users the choice to depict ribbon glyphs. The legend layer is optional. It enabling users to display a legend—a magnified version of one of the glyphs."}
 include_graphics("figures/glyphmap-layers.png")
 ```
 
@@ -302,21 +302,21 @@ The construction of a glyph map, as described in @wickham2012glyph, involves a l
 
 Once the minor axes are rescaled to the interval [-1, 1], the final coordinates for the ribbon glyph are determined through a linear transformation, as follows:
 
-\begin{aligned}
+\begin{align}
 \text{x} &= \text{x}_{\text{major}} + \frac{\text{width}}{2} \cdot \text{x}_{\text{minor}} \\
 \text{ymin} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{ymin}_{\text{minor}} \\
 \text{ymax} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{ymax}_{\text{minor}}
 
-\end{aligned}
+\end{align}
 
 Similarly, the coordinates for the segment glyph are computed as:
 
-\begin{aligned}
+\begin{align}
 \text{x} &= \text{x}_{\text{major}} + \frac{\text{width}}{2} \cdot \text{x}_{\text{minor}} \\
 \text{y} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{y}_{\text{minor}} \\
 \text{yend} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{yend}_{\text{minor}}
 
-\end{aligned}
+\end{align}
 
 This linear transformation ensures that the temporal and data components are properly aligned with the spatial coordinates, enabling a clear and accurate visualization of spatio-temporal data. 
 
