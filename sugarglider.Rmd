@@ -433,7 +433,7 @@ head(train) |>
 
 Interactive graphics are particularly useful when working with spatio-temporal data as they allow users to explore the data from multiple perspectives. The `cubble` package, exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). In this paper, we will demonstrate how to create interactive glyph maps using Leaflet.
 
-Making glyph map using leaflet is useful for high density data where alot of the observation are either clustered together or overlap with each other. With leaflet's ability to pan in and out, we are able to display all the glyphs regardless of how close they are to each other. This can't be achevie with static maps since we can only plot a certain number of glyph before it gets overcrowed. 
+Making glyph map using leaflet is useful for high density data where a lot of the observation are either clustered together or overlap with each other. With leaflet's ability to pan in and out, we are able to display all the glyphs regardless of how close they are to each other. This can't be achieve with static maps since we can only plot a certain number of glyph before it gets overcrowed. 
 
 To create interactive glyph maps with Leaflet, we first need to save each glyph as a image and then add these to the Leaflet basemap as icons. The process begins by creating a list of all unique train stations that service both metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`, `add_glyph_boxes()` and `add_ref_lines()`. Each glyph is saved in PNG format, and the file paths for all the PNGs are stored in an object for the next step.
 
