@@ -133,7 +133,7 @@ include_graphics("figures/global_rescale.png")
 
 
 
-## ----echo=FALSE, fig.cap="The diagram highlights how spatial data (geographical location) combines temporal data (measurements over time) to create a spatio-temporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns across different spatial locations over time.", out.width="90%"----
+## ----echo=FALSE, fig.cap="The diagram highlights how spatial data (geographical location) combines temporal data (measurements over time) to create a spatiotemporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns across different spatial locations over time.", out.width="90%"----
 knitr::include_graphics("figures/diagram-transformation.png")
 
 

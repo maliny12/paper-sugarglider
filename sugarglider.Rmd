@@ -1,7 +1,7 @@
 ---
-title: "sugarglider: Create glyphmaps of spatio-temporal data"
+title: "sugarglider: Create Glyph-maps of Spatiotemporal Data"
 abstract: > 
- Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. One type of visualization used for this purpose is glyph maps, specialized multivariate glyph plots that represent each spatial location with a glyph, summarizing data collected over time at that location. A variant of glyph maps is the line glyph, which depicts changes over time but is less effective at capturing different components of spatiotemporal data. To address this limitation, `sugarglider` creates glyph maps using ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
+ Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. Glyph maps use specialized multivariate glyph plots that depict and summarize data at each spatial location over time. A variant of glyph maps, the line glyph, illustrates changes over time but falls short in capturing the diverse components of spatiotemporal data. To address this limitation, `sugarglider` expands glyph maps with ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
 draft: true
 author:  
   - name: Maliny Po
@@ -74,21 +74,21 @@ library(tinytex)
 
 Spatiotemporal data visualization allows users to explore events and interactions across space and time. This approach enables the discovery of temporal patterns, anomalies, and relationships within the data. As  @kim2017data explains, a natural way to analyze spatiotemporal data is by plotting it on a map and incorporating animation controls or small multiple views to visualize each time step. This method helps analysts gain insights into the spatial distribution of the data and the patterns or correlations that emerge over time within these distributions.
 
-One effective method for visualizing spatiotemporal data is the glyph map. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element, or glyph, positioned at a specific location on the map. Each glyph comprises two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
+One effective method for visualizing spatiotemporal data is `glyph maps`. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element positioned at a specific location on the map. Each glyph comprises of two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
 
-To address this limitation, the `sugarglider` package was developed, extending ggplot2 by introducing glyph map visualizations specifically designed for spatiotemporal data. This package offers two core functions: `geom_glyph_ribbon()` and `geom_glyph_segment()` , which enable users to create ribbon and segment glyph maps. These functions are designed to visualize changes over time and capture variations in the data. The `geom_glyph_ribbon()` function represents intervals between two values, making it ideal for displaying ranges or uncertainties, while the  `geom_glyph_segment()` function connects data points to reveal trends and transitions.
+To address this limitation, the `sugarglider` package was developed, enhancing glyph maps with the addition of ribbon and segment glyphs specifically designed for exploring variations and seasonal components in spatiotemporal data. This package includes two core functions: `geom_glyph_ribbon()` and `geom_glyph_segment()`, which enable the creation of ribbon and segment glyph maps, respectively. The `geom_glyph_ribbon()` function visualizes intervals between two values, making it perfect for depicting ranges or uncertainties. Meanwhile, the `geom_glyph_segment()` function connects data points to showcase trends and transitions.
 
-The sugarglider package can visualize seasonal patterns, temporal variations, or time-dependent measurements at specific locations. Its customizable features—such as adjustable glyph dimensions, global or individual scaling, and adding reference lines or boxes—allow users to tailor their visualizations to meet their specific analysis needs. This versatility makes sugarglider a valuable tool for researchers and analysts working with spatiotemporal datasets across various fields, including transportation, environmental monitoring, and urban planning.
+`sugarglider` offers extensive customization features such as adjustable glyph aspect ratios, global or individual scaling, and custom rescaling, allowing users to tailor their visualizations to specific analytical needs. This versatility makes `sugarglider` a valuable tool for researchers and analysts working with spatiotemporal datasets across various fields, including transportation and climate, as discussed in the application section of this paper.
 
-The following sections will explore how Sugar Glider enables users to visualize spatiotemporal data effectively, providing practical examples and highlighting the package’s flexibility in creating insightful and customizable glyph maps.
+The following sections will explore how `sugarglider` enables users to visualize spatiotemporal data effectively, providing practical examples and highlighting the package’s flexibility in creating insightful and customizable glyph maps.
 
 # Literature Review 
 
-## Visualizing spatio-temporal Data
+## Spatiotemporal visualization 
 
-Data visualization is often seen as converting unstructured raw data into structured representations that enhance interpretation.  @spence2001information describes visualization as the formation of a mental model or image, which aligns with definitions in the Oxford Dictionary that frame a model as either an example to follow or a simplified mathematical description aiding in calculations and predictions. The general workflow for realizing data visualization consists of four fundamental stages: data collection and storage, preprocessing to transform data into comprehensible information, display rendering via hardware and algorithms, and finally, interpretation through the human perceptual system (@waddell2004introduction). 
+Data visualization is often seen as converting unstructured raw data into structured representations that enhance interpretation. @spence2001information describes visualization as the formation of a mental model or image, which aligns with definitions in the Oxford Dictionary that frame a model as either an example to follow or a simplified mathematical description aiding in calculations and predictions. The general workflow for realizing data visualization consists of four fundamental stages: data collection and storage, preprocessing to transform data into comprehensible information, display rendering via hardware and algorithms, and finally, interpretation through the human perceptual system (@waddell2004introduction). 
 
-Spatiotemporal visualizations offer a particular advantage by providing a global view of activities, enabling the detection of trends and evolution, making them indispensable tools for spatial and temporal analysis and decision-making (@zhong2012spatiotemporal). Various techniques are used in spatiotemporal data visualization, such as multiple maps representing different time moments, dynamic maps with user control, change maps highlighting differences between two-time points, and the space-time cube, a 3D visualization integrating geographical space and time (andrienko2003exploratory). 
+Spatiotemporal visualizations offer a particular advantage by providing a global view of activities, enabling the detection of trends and evolution, making them indispensable tools for spatial and temporal analysis and decision-making (@zhong2012spatiotemporal). Various techniques are used in spatiotemporal data visualization, such as multiple maps representing different time moments, dynamic maps with user control, change maps highlighting differences between two-time points, and the space-time cube, a 3D visualization integrating geographical space and time (@andrienko2003exploratory). 
 
 ## Glyph-maps 
 
@@ -104,7 +104,7 @@ The architecture of ggplot2 is based on the gg proto system of object-oriented p
 
 As the demand for an official extension mechanism in ggplot2 increased, the limitations of the proto system became evident, prompting the adoption of ggproto. This transition is documented in @Wickham2016ggplot2, which introduces how to utilize ggproto objects to extend ggplot2 functionalities.
 
-Creating a new ggproto object is facilitated by the ggproto() function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from `Stat` and `Geom.` However, merely creating a ggproto object does not make it accessible or valuable to the end user.
+Creating a new ggproto object is facilitated by the `ggproto()` function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from `Stat` and `Geom.` However, merely creating a ggproto object does not make it accessible or valuable to the end user.
 
 To bridge this gap, a layer function must be created. An example is the `new_stat()` function, which follows a consistent format: setting defaults in the function arguments and calling `layer()`, which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics.
 
@@ -120,7 +120,7 @@ While developing ggplot2 extensions, it may seem intuitive to encapsulate extens
 include_graphics("figures/glyphmap-layers.png")
 ```
 
-Each layer can be plotted independently, and the package supports the creation of glyphmaps using ribbon and segment geometries. The core functionality includes:
+Each layer can be plotted independently, and the package supports the creation of glyph maps using ribbon and segment geometries. The core functionality includes:
 
 * `geom_glyph_ribbon()`:  Displays an interval on the y-axis for each *x_minor* value, with the bounds defined by *ymin_minor* and *ymax_minor*. This function draws ribbon geometry using `geom_ribbon()` from ggplot2 to draw ribbon geometry, resulting in ribbon glyphs. Each glyph is plotted by combining *x_major* and *y_major* coordinates. This functionality is handy for visualizing ranges or uncertainties in the data.
 
@@ -212,7 +212,7 @@ glimpse(aus_temp)
 
 Datasets may not always include both spatial and temporal elements. Analysts often start with station data that provides geographic locations, recorded variables, and their time periods. To extract relevant data, they can query the temporal variables for specific stations of interest. In some cases, analysts may start with purely spatial or purely temporal data, which then requires additional elements to transform it into a spatiotemporal format.
 
-For these situations, the `cubble` package offers functions such as `make_cubble()` to help users structure their data into **cubble** objects, optimised for glyph-maps use. This structuring facilitates the creation of detailed and insightful spatio-temporal visualizations, enabling the data to be seamlessly integrated into the `sugarglider` package.
+For these situations, the `cubble` package offers functions such as `make_cubble()` to help users structure their data into **cubble** objects, optimised for glyph-maps use. This structuring facilitates the creation of detailed and insightful spatiotemporal visualizations, enabling the data to be seamlessly integrated into the `sugarglider` package.
 
 ## Rescale
 
@@ -299,7 +299,7 @@ For both `geom_glyph_ribbon()` and `geom_glyph_segment()`, rescaling is applied 
 
 ## Spatial-temporal transformation
 
-```{r , echo=FALSE, fig.cap="The diagram highlights how spatial data (geographical location) combines temporal data (measurements over time) to create a spatio-temporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns across different spatial locations over time.", out.width="90%"}
+```{r , echo=FALSE, fig.cap="The diagram highlights how spatial data (geographical location) combines temporal data (measurements over time) to create a spatiotemporal visualization. In sugarglider, the transformation maps each station's temporal measurements into a visual glyph, allowing users to see patterns across different spatial locations over time.", out.width="90%"}
 knitr::include_graphics("figures/diagram-transformation.png")
 ```
 
@@ -321,7 +321,7 @@ Similarly, the coordinates for the segment glyph are computed as:
 \text{yend} &= \text{y}_{\text{major}} + \frac{\text{height}}{2} \cdot \text{yend}_{\text{minor}}
 \end{align}
 
-This linear transformation ensures that the temporal and data components are appropriately aligned with the spatial coordinates, enabling a clear and accurate visualization of spatio-temporal data. 
+This linear transformation ensures that the temporal and data components are appropriately aligned with the spatial coordinates, enabling a clear and accurate visualization of spatiotemporal data. 
 
 ## Examples
 
@@ -547,7 +547,7 @@ This dataset, obtained from the Kaggle [Airline Flight Delay and Cancellation da
 
 This example demonstrates the functionality of `geom_glyph_segment()`, which shows the monthly range of flights for each airport and provides insights into how flight numbers change over time. Additionally, `geom_glyph_ribbon()` visualizes the variation between the minimum and maximum number of flights from each airport, offering a clear depiction of the spread in flight activity.
 
-Users can generate interactive glyphs with `ggiraph::girafe` using sugarglider. First, users need to specify tooltips, which are the details displayed when hovering over the glyphs. In this example, the tooltips consist of station id, month, minimum and maximum temperature across all months. 
+Users can generate interactive glyphs with `ggiraph::girafe` using `sugarglider`. First, users need to specify tooltips, which are the details displayed when hovering over the glyphs. In this example, the tooltips consist of station id, month, minimum and maximum temperature across all months. 
 
 Tooltips must be provided in the aesthetic of the `tooltip` argument. The user can then plot their desired glyph map and save it as a ggplot object. This ggplot object is converted into an interactive glyph map using the `girafe()` function. 
 
@@ -616,9 +616,9 @@ include_graphics("figures/west_south.png")
 
 # Conclusion
 
-This paper introduces the R package sugarglider, designed to create glyph maps for visualizing spatiotemporal data using customizable ribbon and segment geometries. The package provides two main functions: geom_glyph_ribbon() and geom_glyph_segment(), which generate ribbon and segment glyphs, respectively. One of the critical features of sugarglider is its flexibility in allowing users to customize their visualizations. For example, the global_rescale argument enables users to control whether the rescaling of glyphs should be applied globally across all data points or handled individually for each glyph. Additionally, users can adjust the glyphs' width and height, ensuring that each glyph's appearance can be tailored to the specific dimensions and scaling of the data being visualized. The package supports static and interactive graphics, and several examples are included to demonstrate how sugarglider can effectively be used for spatio-temporal data visualization.
+This paper introduces the R package `sugarglider`, designed to create glyph maps for visualizing spatiotemporal data using customizable ribbon and segment geometries. The package provides two main functions: geom_glyph_ribbon() and geom_glyph_segment(), which generate ribbon and segment glyphs, respectively. One of the critical features of `sugarglider` is its flexibility in allowing users to customize their visualizations. For example, the global_rescale argument enables users to control whether the rescaling of glyphs should be applied globally across all data points or handled individually for each glyph. Additionally, users can adjust the glyphs' width and height, ensuring that each glyph's appearance can be tailored to the specific dimensions and scaling of the data being visualized. The package supports static and interactive graphics, and several examples are included to demonstrate how `sugarglider` can effectively be used for spatiotemporal data visualization.
 
-Two potential directions for future development include handling different data types and improving the handling of glyph overlap. Currently, sugarglider expects data in a tidy format, but expanding its functionality to work with lists of vectors or matrices would enhance its usability. Additionally, static maps can become overcrowded when too many glyphs are plotted, making it difficult to interpret the visualizations. A possible solution is to collapse overlapping glyphs into a single glyph, with an accompanying data summary for all the collapsed glyphs. These improvements would increase the flexibility and scalability of sugarglider for a broader range of data visualization tasks.
+Two potential directions for future development include handling different data types and improving the handling of glyph overlap. Currently, `sugarglider` expects data in a tidy format, but expanding its functionality to work with lists of vectors or matrices would enhance its usability. Additionally, static maps can become overcrowded when too many glyphs are plotted, making it difficult to interpret the visualizations. A possible solution is to collapse overlapping glyphs into a single glyph, with an accompanying data summary for all the collapsed glyphs. These improvements would increase the flexibility and scalability of `sugarglider` for a broader range of data visualization tasks.
 
 # Acknowledgements
 

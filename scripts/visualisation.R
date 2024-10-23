@@ -188,8 +188,7 @@ temp_var <- aus_temp |>
   scale_color_manual(
     values = c("Weather Station" = "firebrick",
                "Temperature" = "black")) +
-  labs(color = "Data",
-       title = "Daily Temperature Variations Across Australian Weather Stations")  +
+  labs(color = "Data")  +
   theme_glyph()
 
 ggsave("temp_var.png", temp_var,
@@ -217,8 +216,7 @@ prcp_temp <- aus_temp |>
   theme_glyph() +
   scale_fill_gradientn(colors = c("#ADD8E6", "#2b5e82", "dodgerblue4")) +
   scale_color_gradientn(colors = c( "#ADD8E6", "#2b5e82", "dodgerblue4")) +
-  labs(fill = "Percepitation", color = "Percepitation",
-       title = "Precipitation and Temperature Ranges Across Australia")
+  labs(fill = "Percepitation", color = "Percepitation")
 
 ggsave("prcp_temp.png", prcp_temp,
        path = "figures",width = 12, height = 6, units = "in", dpi = 300)
@@ -244,8 +242,7 @@ hist_temp <- historical_temp |>
                     width = rel(2),
                     height = rel(1.5)) +
   labs(x = "Longitude", y = "Latitude",
-       color = "year", fill = "year",
-       title = "Temperature Trends in Selected Victorian Weather Stations") +
+       color = "year", fill = "year") +
   # Theme and aesthetic
   theme_glyph() +
   theme(legend.position.inside = c(.4,0)) +
@@ -270,8 +267,7 @@ legend_glyph <- aus_temp |>
   add_glyph_legend(color = "#227B94", fill = "#227B94") +
   # Add a ribbon legend
   geom_glyph_ribbon(color = "#227B94", fill = "#227B94") +
-  theme_glyph() +
-  labs(title = "Temperature Ranges Across Australia with Glyph Legend")
+  theme_glyph()
 
 ggsave("legend_glyph.png", legend_glyph,
        path = "figures",width = 12, height = 6, units = "in", dpi = 300)
@@ -299,8 +295,6 @@ fl <- flights |>
   add_glyph_boxes(color = "#CD5C08") +
   add_ref_lines(color = "#CD5C08") +
   geom_glyph_segment(color = "#CD5C08") +
-  labs(title = "Monthly Flight Variability",
-       subtitle = "Based on top 10 US Airports with high cancellations rate") +
   theme_glyph()
 
 # Interactive plot using ggiraph
