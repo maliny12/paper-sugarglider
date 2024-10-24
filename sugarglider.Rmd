@@ -1,7 +1,7 @@
 ---
 title: "sugarglider: Create Glyph-maps of Spatiotemporal Data"
 abstract: > 
- Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. Glyph maps use specialized multivariate glyph plots that depict and summarize data at each spatial location over time. A variant of glyph maps, the line glyph, illustrates changes over time but falls short in capturing the diverse components of spatiotemporal data. To address this limitation, `sugarglider` expands glyph maps with ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
+ Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. Glyph maps use specialized multivariate glyph plots that depict and summarize data at each spatial location over time. A variant of glyph maps, the line glyph, illustrates changes over time but falls short in capturing the diverse components of spatiotemporal data. To address this limitation, `sugarglider` extend glyph maps with ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
 draft: true
 author:  
   - name: Maliny Po
@@ -11,7 +11,7 @@ author:
     - Melbourne, Australia
     orcid: 0009-0008-4686-6631
     email:  malinypo12@gmail.com
-  - name: Nathan Shuyuan Yang
+  - name: S. Nathan Yang
     affiliation: Duke University
     address:
     - Durham, North Carolina
@@ -35,6 +35,7 @@ author:
     orcid: 0000-0002-3813-7155
 type: package
 output: 
+  #rjtools::rjournal_article:
   rjtools::rjournal_pdf_article:
     self_contained: yes
     toc: no
@@ -74,7 +75,7 @@ library(tinytex)
 
 Spatiotemporal data visualization allows users to explore events and interactions across space and time. This approach enables the discovery of temporal patterns, anomalies, and relationships within the data. As  @kim2017data explains, a natural way to analyze spatiotemporal data is by plotting it on a map and incorporating animation controls or small multiple views to visualize each time step. This method helps analysts gain insights into the spatial distribution of the data and the patterns or correlations that emerge over time within these distributions.
 
-One effective method for visualizing spatiotemporal data is `glyph maps`. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element positioned at a specific location on the map. Each glyph comprises of two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
+One method for visualizing spatiotemporal data is `glyph maps`. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element positioned at a specific location on the map. Each glyph comprises of two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
 
 To address this limitation, the `sugarglider` package was developed, enhancing glyph maps with the addition of ribbon and segment glyphs specifically designed for exploring variations and seasonal components in spatiotemporal data. This package includes two core functions: `geom_glyph_ribbon()` and `geom_glyph_segment()`, which enable the creation of ribbon and segment glyph maps, respectively. The `geom_glyph_ribbon()` function visualizes intervals between two values, making it perfect for depicting ranges or uncertainties. Meanwhile, the `geom_glyph_segment()` function connects data points to showcase trends and transitions.
 
@@ -86,7 +87,7 @@ The following sections will explore how `sugarglider` enables users to visualize
 
 ## Spatiotemporal visualization 
 
-Data visualization is often seen as converting unstructured raw data into structured representations that enhance interpretation. @spence2001information describes visualization as the formation of a mental model or image, which aligns with definitions in the Oxford Dictionary that frame a model as either an example to follow or a simplified mathematical description aiding in calculations and predictions. The general workflow for realizing data visualization consists of four fundamental stages: data collection and storage, preprocessing to transform data into comprehensible information, display rendering via hardware and algorithms, and finally, interpretation through the human perceptual system (@waddell2004introduction). 
+Data visualization is often seen as converting unstructured raw data into structured representations that enhance interpretation. @spence2001information, visualization involves creating a mental model or image, a concept that aligns with definitions found in the Oxford Dictionary, where a model is described as either an exemplar or a simplified mathematical representation that aids in calculations and predictions. The general workflow for data visualization consists of four fundamental stages: collecting and storing data, preprocessing to convert data into desirable format, rendering displays through hardware and algorithms, and  interpreting these visualizations through the human perceptual system (@waddell2004introduction). 
 
 Spatiotemporal visualizations offer a particular advantage by providing a global view of activities, enabling the detection of trends and evolution, making them indispensable tools for spatial and temporal analysis and decision-making (@zhong2012spatiotemporal). Various techniques are used in spatiotemporal data visualization, such as multiple maps representing different time moments, dynamic maps with user control, change maps highlighting differences between two-time points, and the space-time cube, a 3D visualization integrating geographical space and time (@andrienko2003exploratory). 
 
@@ -98,35 +99,31 @@ The construction of a glyph map evolves around a transformation technique that u
 
 For a plot to be helpful for a specific data analysis task, it should make primary comparisons easy to see. Mapping values to the position is one of the most straightforward perceived properties (@f076b642-1914-3749-af10-4b3bcbdaef52). Glyph maps display changes in slope, trend, average value, and variance over time. They organize the graphical elements necessary for temporal comparisons. However, glyph maps, primarily when representing linear trends as icons, may be subject to the Zöllner Illusion, which distorts straight lines. Therefore, accurate perception of change requires the implementation of reference frames and scaling (@wickham2012glyph)
 
-## Extending ggplot2 with ggproto
+## `ggplot2` extensions
 
-The architecture of ggplot2 is based on the gg proto system of object-oriented programming. Initially, ggplot2 relied on the proto system for object-oriented tasks, an S3 subclass of the R environment class. Proto objects are manipulated using the proto function, which sets the parent environment, evaluates expressions, and manages lazy evaluation of arguments (@proto).
+The architecture of `ggplot2` is based on the `ggproto` system of object-oriented programming. Initially, `ggplot2` relied on the proto system for object-oriented tasks, an S3 subclass of the R environment class. Proto objects are manipulated using the `proto()` function, which sets the parent environment, evaluates expressions, and manages lazy evaluation of arguments (@proto).
 
-As the demand for an official extension mechanism in ggplot2 increased, the limitations of the proto system became evident, prompting the adoption of ggproto. This transition is documented in @Wickham2016ggplot2, which introduces how to utilize ggproto objects to extend ggplot2 functionalities.
+As the demand for an official extension mechanism in `ggplot2` increased, the limitations of the `proto` system became evident, prompting the adoption of `ggproto`. This transition is documented in @Wickham2016ggplot2, which introduces how to utilize `ggproto` objects to extend `ggplot2` functionalities. Creating a new `ggproto` object is facilitated by the `ggproto()` function, which requires the name of the new class and an existing `ggproto` object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a `ggproto` object that inherits from `stats` and `geoms`. However, merely creating a `ggproto` object does not make it accessible or valuable to the end user.
 
-Creating a new ggproto object is facilitated by the `ggproto()` function, which requires the name of the new class and an existing ggproto object from which it will inherit. For instance, to introduce a new statistical transformation, one might create a ggproto that inherits from `Stat` and `Geom.` However, merely creating a ggproto object does not make it accessible or valuable to the end user.
-
-To bridge this gap, a layer function must be created. An example is the `new_stat()` function, which follows a consistent format: setting defaults in the function arguments and calling `layer()`, which handles the distribution of these arguments into either geom parameters, stat parameters, or aesthetics.
+To bridge this gap, a layer function must be defined by invoking `layer()`, which allocates the provided arguments to either geom parameters, stat parameters, or aesthetics. While developing `ggplot2` extensions, it may seem intuitive to encapsulate extensions as new `geom`, as this is commonly used to add layers to a plot. However, the rich diversity of `ggplot2`'s functionality is often attributed to its varied statistical transformations (stats) rather than just geometric objects (geoms). This observation suggests that a more nuanced approach to designing extensions can enhance the capabilities of the plotting system.
 
 # Software
 
-The `sugarglider` package extends the capabilities of ggplot2 by introducing functions designed explicitly for visualizing seasonal patterns in spatiotemporal data. It includes `geom_glyph_ribbon()` and `geom_glyph_segment()`, which represent measurements recorded over time at specific locations using glyph maps. These functions enable explicit depictions of seasonal trends by leveraging the combination of *x_major* and *y_major* coordinates. 
+The `sugarglider` package extends the capabilities of `ggplot2` by introducing functions designed explicitly for visualizing seasonal patterns in spatiotemporal data. It includes `geom_glyph_ribbon()` and `geom_glyph_segment()`, which represent measurements recorded over time at specific locations using glyph maps. These functions enable explicit depictions of seasonal trends by leveraging the combination of *x_major* and *y_major* coordinates. 
 
 The structure of glyph maps in `sugarglider` consists of four main layers: the base map, glyph boxes, reference lines, and ribbon or segment glyphs. Additionally, users can create a legend, adding an extra layer to the glyph maps. Apart from the base map, `sugarglider` offers functionalities to generate all the elements of a comprehensive glyph map, as illustrated in the figure below.
 
-While developing ggplot2 extensions, it may seem intuitive to encapsulate extensions as new geoms, as users frequently use them to add layers to a plot. However, the diversity in ggplot2’s capabilities often stems more from the variety in statistical transformations (stats) than merely geometric objects (geoms), suggesting a nuanced approach to designing extensions that effectively enhance the plotting system.
-
-```{r, fig.cap="The diagram depicts the structure of a glyph map. The initial layer represents the base map. Subsequent layers comprise glyph boxes and reference lines. The fourth layer encompasses the glyph itself, allowing users to depict ribbon glyphs. The legend layer is optional. It enables users to display a legend—a magnified version of one of the glyphs.", out.width="60%"}
+```{r, fig.cap="The diagram depicts the structure of a glyph map. The first layer represents the base map. Subsequent layers comprise glyph boxes and reference lines. The fourth layer encompasses the glyph itself, allowing users to depict ribbon glyphs. The legend layer is optional. It enables users to display a legend—a magnified version of one of the glyphs.", out.width="60%"}
 include_graphics("figures/glyphmap-layers.png")
 ```
 
 Each layer can be plotted independently, and the package supports the creation of glyph maps using ribbon and segment geometries. The core functionality includes:
 
-* `geom_glyph_ribbon()`:  Displays an interval on the y-axis for each *x_minor* value, with the bounds defined by *ymin_minor* and *ymax_minor*. This function draws ribbon geometry using `geom_ribbon()` from ggplot2 to draw ribbon geometry, resulting in ribbon glyphs. Each glyph is plotted by combining *x_major* and *y_major* coordinates. This functionality is handy for visualizing ranges or uncertainties in the data.
+* `geom_glyph_ribbon()`:  Displays an interval on the y-axis for each *x_minor* value, with the bounds defined by *ymin_minor* and *ymax_minor*. This function draws ribbon geometry using `geom_ribbon()` from `ggplot2` to draw ribbon geometry, resulting in ribbon glyphs. Each glyph is plotted by combining *x_major* and *y_major* coordinates. This functionality is handy for visualizing ranges or uncertainties in the data.
 
-* `geom_glyph_segment()`: Connects *y_minor* to *yend_minor* with a straight line using `geom_segment()` from ggplot2, resulting in segment glyphs. Each glyph is plotted by combining *x_major* and *y_major* coordinates.
+* `geom_glyph_segment()`: Connects *y_minor* to *yend_minor* with a straight line using `geom_segment()` from `ggplot2`, resulting in segment glyphs. Each glyph is plotted by combining *x_major* and *y_major* coordinates.
 
-In addition to these two functions, `sugarglider` offers several other features that enhance the customization of glyph maps. The `add_ref_box()` function introduces reference boxes that visually frame individual glyphs, helping to define boundaries and distinguish glyphs from each other. The `add_ref_line()` function draws a horizontal midpoint for each glyph, facilitating comparisons across data points. The `add_glyph_legend()` function allows users to display an enlarged version of a randomly chosen glyph in the bottom-left corner of the panel, enabling users to visualize the data range. Lastly, the `theme_glyph()` function provides a customized theme for glyph maps, built on top of `theme_map()` from `ggthemes`. It adjusts the plot's appearance, including the legend position, text styles, and background settings, to create a clean, visually consistent layout for glyph visualizations.
+In addition to these two functions, `sugarglider` offers several other features that enhance the aesthetic and interpretability of glyph maps. The `add_ref_box()` function introduces reference boxes that visually frame individual glyphs, helping to define boundaries and distinguish glyphs from each other. The `add_ref_line()` function draws a horizontal midpoint for each glyph, facilitating comparisons across data points. The `add_glyph_legend()` function allows users to display an enlarged version of a randomly chosen glyph in the bottom-left corner of the panel, enabling users to visualize the data range. Lastly, the `theme_glyph()` function provides a customized theme for glyph maps, built on top of `theme_map()` from `ggthemes`. It adjusts the plot's appearance, including the legend position, text styles, and background settings, to create a clean, visually consistent layout for glyph maps.
 
 ```{r, eval = FALSE, echo=TRUE}
 # Ribbon glyph
@@ -141,6 +138,8 @@ vic_temp |>
   geom_glyph_ribbon() +
   theme_glyph()
 
+
+
 # Segment glyph
 vic_temp |>
    ggplot(aes(x_major = long,
@@ -153,23 +152,20 @@ vic_temp |>
   geom_glyph_segment() +
   theme_glyph()
 ```
-
-```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."}
+```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."}
 
 include_graphics("figures/ribbon_segment.png")
 ```
 
-The `sugarglider` package provides various customization options for more flexible visualization. It includes features such as the `global_rescale` argument, which allows users to choose between global or individual glyph scaling. Users can also adjust the scaling of minor values within grid cells and the overall width and height of glyphs. This ensures that the glyph map can be finely tuned to meet specific data representation needs. The following section will explore these features in greater detail and provide practical examples illustrating their application within different visualization contexts.
+The `sugarglider` package provides various customization options for more flexible visualization. It includes features such as the `global_rescale` argument, which allows users to choose between global or individual glyph scaling. Users can also adjust the scaling of minor values within grid cells and the overall width and height of glyphs. This ensures that the glyph map can be finely tuned to meet specific data visualization needs. The following section will explore these features in greater detail and provide practical examples illustrating their application within different visualization contexts.
 
 ## Aesthetics  
 
-`sugarglider` provides the same aesthetics for `geom_glyph_ribbon()` and `geom_glyph_segment()` as those available in `geom_ribbon()` and `geom_segment()` from ggplot2. To include a variable in the glyph plot, it must be specified as an aesthetic. The functions in `sugarglider` expect spatial coordinates as the major axis and temporal data, along with some measurements, as the minor axis.
-
-To produce glyph maps, the following aesthetics are required:
+The functions in `sugarglider` expect spatial coordinates as the major axis and temporal data, along with some measurements, as minor axes. For minor axes, `sugarglider` adopts the same aesthetics as `ggplot2::geom_ribbon()` and `ggplot2::geom_segment()`, but appends `_minor` to each aesthetic name for use in `geom_glyph_ribbon()` and `geom_glyph_segment()`. To incorporate a variable into the glyph plot, it needs to be explicitly defined as an aesthetic. To produce glyph maps, the following aesthetics are required:
 
 |Aesthetics          | Description
 |--------------- | ------------------------------------------------
-|  `x_major`,`y_major`         | Spatial coordinates that define the position of glyphs.
+|  `x_major`, `y_major`         | Spatial coordinates that define the position of glyphs.
 |  `x_minor`         | Represents temporal data associated with each glyph.
 |  `ymin_minor`, `ymax_minor`       | Used by `geom_glyph_ribbon()` to establish the lower and upper bounds of the ribbon geometry within each glyph.
 |  `y_minor`, `yend_minor`       | Used by `geom_glyph_segment()` to set the start and end points of the segment geometry within each glyph.
@@ -196,15 +192,15 @@ Additionally, the width and height of the glyphs are adjustable, allowing users 
 |--------------- | ------------ | ------------------------------------------------
 | `x_scale`         | `"identity"`         | This function scales each set of minor values within a grid cell along the x-dimension.
 |`y_scale`      | `"identity"`          | This function scales each set of minor values within a grid cell along the y-dimension.
-|`width`         | `ggplot2::rel(4)`          |  Width of the glyph.
-|`height`     | `ggplot2::rel(2.5)`     | Height of the glyph.
+|`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method.
+|`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio.
 |`global_rescale`      | `TRUE`        | Determines whether rescaling is applied globally across all glyphs or individually for each glyph
 
 ## Data structure 
 
 When using the `sugarglider` package to create glyph plots, the first step is to ensure that your data is in the correct format. There are two data structures to consider per @JSSv110i07, and one is compatible with `sugarglider`. The package supports data structured in an extended format with temporal and spatial elements.
 
-`sugarglider` includes a dataset called `aus_temp`, sourced from The National Oceanic and Atmospheric Administration (NOAA). This dataset provides a comprehensive set of climate data from 29 stations across Australia for 2020. It includes crucial climate variables such as precipitation and temperature, key spatial elements (longitude and latitude), temporal elements (month), and temperature ranges. These temperature ranges are crucial for determining the widths of the ribbon and segment plots in glyph maps.
+The package includes a dataset named `aus_temp`, which is sourced from The National Oceanic and Atmospheric Administration (NOAA). This dataset provides a comprehensive set of climate data from 29 stations across Australia for 2020. It includes crucial climate variables such as precipitation and temperature, key spatial elements (longitude and latitude), temporal elements (month), and temperature ranges. These temperature ranges are crucial for determining the widths of the ribbon and segment plots in glyph maps.
 
 ```{r, echo = TRUE}
 glimpse(aus_temp)
@@ -212,7 +208,7 @@ glimpse(aus_temp)
 
 Datasets may not always include both spatial and temporal elements. Analysts often start with station data that provides geographic locations, recorded variables, and their time periods. To extract relevant data, they can query the temporal variables for specific stations of interest. In some cases, analysts may start with purely spatial or purely temporal data, which then requires additional elements to transform it into a spatiotemporal format.
 
-For these situations, the `cubble` package offers functions such as `make_cubble()` to help users structure their data into **cubble** objects, optimised for glyph-maps use. This structuring facilitates the creation of detailed and insightful spatiotemporal visualizations, enabling the data to be seamlessly integrated into the `sugarglider` package.
+For these situations, the `cubble` package offers functions such as `make_cubble()` to help users structure their data into `cubble` objects, optimised for glyph-maps use. This structuring facilitates the creation of detailed and insightful spatiotemporal visualizations, enabling the data to be seamlessly integrated into the `sugarglider` package.
 
 ## Rescale
 
@@ -295,7 +291,7 @@ include_graphics("figures/global_rescale.png")
 
 The rescaling process in `sugarglider` involves several steps. First, the function checks for custom scaling based on the `x_scale` and `y_scale` parameters. It then groups the data based on the designated grouping variable to ensure each glyph is drawn as a distinct path. If `global_rescale` is set to *TRUE*, the data is ungrouped before rescaling the minor axes, ensuring consistent scaling across all glyphs. Conversely, if `global_rescale` is set to *FALSE*, the data remains grouped, resulting in local scaling for each glyph.
 
-For both `geom_glyph_ribbon()` and `geom_glyph_segment()`, rescaling is applied separately to the `ymin_minor` and `ymax_minor` values or the `y_minor and yend_minor values, respectively. This ensures that the lower and upper bounds are adjusted independently to fit within the specified scale, maintaining accuracy and clarity in the visualization.
+For both `geom_glyph_ribbon()` and `geom_glyph_segment()`, rescaling is applied separately to the `ymin_minor` and `ymax_minor` values or the `y_minor` and `yend_minor` values, respectively. This ensures that the lower and upper bounds are adjusted independently to fit within the specified scale, maintaining accuracy in the rescaled value.
 
 ## Spatial-temporal transformation
 
@@ -303,7 +299,7 @@ For both `geom_glyph_ribbon()` and `geom_glyph_segment()`, rescaling is applied 
 knitr::include_graphics("figures/diagram-transformation.png")
 ```
 
-The construction of a glyph map, as described in @wickham2012glyph, involves a linear combination of two key structural components: spatial location and data values. In this context, the significant axes represent the spatial coordinates, latitude ($y_{major}$) and longitude ($x_{major}$). In contrast, the minor axes correspond to time ($x_{minor}$) and a measurement of interest ($ymax_{minor}$ and $ymin_{minor}$). For segment glyphs, the measurement is represented by $y_{minor}$ and $yend_{minor}$.
+The construction of a glyph map, as described in @wickham2012glyph, involves a linear combination of two key structural components: spatial location and data values. In this context, the major axes represent the spatial coordinates, latitude ($y_{major}$) and longitude ($x_{major}$). In contrast, the minor axes correspond to time ($x_{minor}$) and a measurement of interest ($ymax_{minor}$ and $ymin_{minor}$). For segment glyphs, the measurement is represented by $y_{minor}$ and $yend_{minor}$.
 
 Once the minor axes are rescaled to the interval [-1, 1], the final coordinates for the ribbon glyph are determined through a linear transformation as follows:
 
@@ -338,13 +334,12 @@ aus_temp |>
     y_minor = tmin, 
     yend_minor = tmax)) +
   add_glyph_boxes() +
-  geom_point(aes(x = long, y = lat,
-                 color = "Weather Station")) +
+  geom_point(aes(x = long, y = lat)) +
   geom_glyph_segment() +
   theme_glyph()
 ```
 
-```{r ,fig.cap="Daily temperature variations across Australian weather stations are visualized using Geom points to display the weather station locations. Additional codes are required for the base map."}
+```{r ,fig.cap="Daily temperature variations across Australian weather stations are visualized using segment glyphs and geom points to mark the locations of the stations on the map. Additional coding is needed to integrate a base map into the visualization. This detailed view reveals that the temperature variation in central Australia is more pronounced than in the coastal regions. Additionally, temperatures in the southeastern areas, such as Victoria and Tasmania, are generally lower than those in the northern regions, highlighting regional climate differences across Australia."}
 
 include_graphics("figures/temp_var.png")
 ```
@@ -370,7 +365,7 @@ aus_temp |>
    theme_glyph()
 ```
 
-```{r, fig.cap="Precipitation and Temperature Ranges Across Australia. Each glyph is colour coded based on the level of precipitation, with sky blue representing the lowest and navy blue representing the highest. Additional codes are needed for the base map and additional theme customization."}
+```{r, fig.cap="Precipitation and Temperature Ranges Across Australia. This visualization uses color-coded glyphs to depict variations in precipitation levels, with sky blue representing the lowest and navy blue the highest levels. Additional code is required to incorporate a base map and customize the theme further. From the plot, it is evident that coastal areas receive more rainfall than the central regions."}
 
 include_graphics("figures/prcp_temp.png")
 ```
@@ -391,7 +386,7 @@ historical_temp |>
    theme_glyph()
 ```
 
-```{r, fig.cap="Temperature Trends in Selected Victorian Weather Stations. Additional codes are required for the base map, title, and theme customization."}
+```{r, fig.cap="Temperature Trends in Selected Victorian Weather Stations. Additional coding is required for the base map, title, and theme customization. In both years, a noticeable seasonal pattern in temperature is evident, with peaks occurring in the summer months and troughs in the winter."}
 
 include_graphics("figures/hist_temp.png")
 ```
@@ -413,7 +408,7 @@ aus_temp |>
   theme_glyph() 
 ```
 
-```{r, fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional code is needed for the base map and additional theme customization."}
+```{r, fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional coding is required for the base map and further theme customization. In this example, the glyphs are uniformly scaled, representing a temperature range from approximately 5.0 to 35.0 degrees Celsius."}
 
 include_graphics("figures/legend_glyph.png")
 ```
@@ -421,13 +416,14 @@ include_graphics("figures/legend_glyph.png")
 
 # Application 
 
-This section presents four examples that illustrate different uses of the `sugarglider` package. The first two examples utilize the `Train Service Passenger Counts data` from DataVic, while the latter two are based on the `Airline Flight Delay and Cancellation data` from `Kaggle`. The first example demonstrates the creation of a ribbon glyph map with Leaflet to explore variations in train service passenger counts. The second example uses a segment glyph to analyze daily variations in train passenger numbers in Melbourne City LGA. The third example features an interactive segment glyph, developed with `ggiraph`, to analyze flight variations at the top 19 US airports with high cancellation rates. Finally, the fourth example uses ribbon glyphs to compare flight variations between the western and southern regions.
+This section presents four examples showcasing the applications of the `sugarglider` package. The first two examples utilize the `Train Service Passenger Counts data` from `DataVic`. The initial example demonstrates the creation of ribbon glyph maps with Leaflet to explore variations in train service passenger counts. The second example uses segment glyphs to analyze daily variations in train passenger count in Melbourne City LGA.
+The remaining two examples are based on the `Airline Flight Delay and Cancellation` data from `Kaggle.` The third example features an interactive segment glyphs, developed with `ggiraph`, to analyze flight variations at the top 19 US airports with high cancellation rates. Finally, the fourth example uses ribbon glyphs to compare flight variations between the western and southern regions.
 
-## Train Service Passenger Counts
+## Train service passenger counts
 
-This dataset, provided by DataVic, is managed by the Victorian Department of Premier and Cabinet and is owned by the State Government of Victoria. The `Train Service Passenger Counts` dataset offers estimated numbers of passengers boarding and alighting from Metro Train and Regional Train services for 2023-2024. These estimates include all individuals aged five and over, excluding train drivers and station staff. For this analysis, the data has been aggregated hourly and separated into maximum and minimum passenger counts across weekdays, weekends, and holidays (public and school holidays).
+The `Train Service Passenger Counts` dataset, published by `DataVic`, provides estimated numbers of passengers boarding and alighting from Metro Train and Regional Train services for the 2023-2024 period. These estimates include all individuals aged five and over, excluding train drivers and station staff. For this analysis, the data has been aggregated on an hourly basis and categorized into maximum and minimum passenger counts across weekdays, weekends, and holidays (including public and school holidays).
 
-### Victoria train station patronage
+### Victorian train station patronage
 
 Interactive graphics are particularly useful when working with spatiotemporal data, allowing users to explore the data from multiple perspectives. The `cubble` package exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). This paper will demonstrate how to create interactive glyph maps using leaflet.
 
@@ -459,7 +455,7 @@ purrr::map(1:length(df_station), function(i) {
 
 ```
 
-To create the base map for leaflet, we use the `leaflet()` function and `addProviderTiles()` with [CartoDB.Positron](https://github.com/CartoDB/basemap-styles) as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
+To create the base map for leaflet, we use the `leaflet()` function and `addProviderTiles()` with `CartoDB.Positron` as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
 
 ```{r, echo=TRUE, eval=FALSE}
 # Create a leaflet map 
@@ -468,7 +464,7 @@ leaflet_map <- leaflet() |>
   addScaleBar(position = "bottomleft")
 ```
 
-Next, we iterate through all the PNG files and convert them into icons using the `makeIcon()` function. Users can control the dimensions of each icon by modifying the `iconWidth` and `iconHeight` arguments. The final step is to add each icon to the Leaflet map using `addMarkers()`. Within the options argument of `addMarkers`, users can fine-tune each glyph's display properties, such as the opacity level. The `label` argument allows users to specify the information they wish to display with the hover-over effect, which is set to display the station ID in this example.
+Next, we iterate through all the images and convert them into icons using the `makeIcon()` function. Users can control the dimensions of each icon by modifying the `iconWidth` and `iconHeight` arguments. The final step is to add each icon to the Leaflet map using `addMarkers()`. Within the options argument of `addMarkers`, users can fine-tune each glyph's display properties, such as the opacity level. The `label` argument allows users to specify the information they wish to display with the hover-over effect, which is set to display the station ID in this example.
 
 ```{r, echo=TRUE,eval=FALSE}
 # Loop through the PNG files and add them to the map
@@ -488,15 +484,15 @@ leaflet_map
 include_graphics("figures/leaflet.jpg")
 ```
 
-The plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, likely showing the fluctuations in train traffic at that particular location throughout the day.
+The plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, depicting the fluctuations in train traffic at each location throughout the day.
 
-The central Melbourne area, especially near major hubs like Melbourne Central Station, shows the highest peaks in train traffic, as indicated by the more extensive glyphs. This reflects the role of the central business district (CBD) as the city's primary transit hub. In addition, stations in the CBD appear to have more pronounced peaks, suggesting a higher number of services during peak hours compared to suburban stations, which have flatter curves, reflecting more consistent traffic throughout the day.
+In the central Melbourne area, especially around major hubs like Melbourne Central Station, there is a significant variation in traffic, with peaks occurring in the middle of the day. This indicates a substantial influx of people, highlighting the central business district (CBD) as the city's primary transit hub.
 
-Moving outward from the city centre, the glyphs show smaller peaks and more consistent, lower traffic levels. This suggests that train services are less frequent or utilized in the outer suburbs than in the central areas.
+Some eastern and southeastern train stations exhibit pronounced peaks, marking them as key transit corridors for residents commuting into the city center. These stations are situated along major rail lines, such as the `Cranbourne/Pakenham` and `Lilydale/Belgrave` lines, which cater to large suburban populations.
 
-Some eastern and southeastern train stations also show moderate peaks, indicating important transit corridors for residents commuting into the city centre. These stations are along major rail lines, such as the Cranbourne/Pakenham and Lilydale/Belgrave lines, which serve large suburban populations.
+Moving away from the city center and major rail lines, the glyphs illustrate smaller peaks and greater fluctuations in traffic levels. This suggests that train services are either less frequent or utilized in the outer suburbs compared to the central areas.
 
-### Daily Variation in Train Passenger in Melbourne City 
+### Daily train passenger variations in Melbourne City LGA
 
 ```{r, eval=FALSE, echo=TRUE}
 weekday <- station |>
@@ -527,27 +523,25 @@ weekend <- station |>
   theme_glyph() 
 ```
 
-```{r, fig.cap="Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further."}
+```{r, fig.cap="Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further. The plot illustrates the behavioral patterns of train patrons, showing high demand during rush hours on weekdays and consistent, elevated demand throughout the weekend."}
 include_graphics("figures/weekend_weekday.png")
 ```
 
-The plot provides valuable insights into train service traffic across Melbourne’s City LGA, distinguishing between weekday and weekend patronage. A higher volume of train services is observed on weekdays, particularly in central areas where stations handle the most traffic. This is reflected by the darker shades of brown, indicating up to 20 services at certain stations, especially in the southeastern part of the city. The weekend patronage, by contrast, exhibits a lighter overall colour gradient, signalling a reduction in services. 
+The plot provides insightful observations into train service traffic within the Melbourne City LGA, emphasizing distinctions between weekday and weekend patronage. A significant volume of train services is apparent in the city loop, where major connecting hubs such as Flinders Street Station are situated. These stations are depicted with darker shades of brown, indicating up to 20 services, starkly contrasting with the lighter color gradients that signify lower train services.
 
-A key observation is the difference in traffic between core and peripheral stations. Central stations serve as major transit hubs, handling significantly more services on weekdays and weekends, while stations on the periphery see much lighter traffic. This suggests that the city’s transit infrastructure is designed to cater to higher demand in central areas, with peripheral stations serving fewer passengers. Additionally, spatial differences are apparent, with certain northern stations consistently experiencing lower traffic regardless of the day, possibly due to differences in population density, land use, or connectivity.
-
-Overall, the plot illustrates a typical pattern of public transport use, with higher demand and service frequency during weekdays, especially in the central parts of the city, and a reduction in services over the weekend. This reflects the reliance on public transport for weekday commuting and the lower travel demand on weekends, which could inform future decisions on scheduling and resource allocation in the transit system.
+The analysis further reveals a discrepancy in traffic between weekdays and weekends. For the majority of the train stations, there is a larger variation in patronage during the weekend compared to weekdays. This pattern is consistent across all stations, regardless of the number of train lines each station accommodates. Additionally, there are less pronounced peaks during the weekends, as there is high but consistent traffic throughout the day. In contrast, weekdays see significant spikes during rush hours due to large numbers of people boarding trains in the morning and evening for school and work, with fewer patrons in between the peaks. This trend underscores the reliance on public transport during certain time of the day and could be pivotal for future decisions regarding scheduling and resource allocation within the transit system.
 
 ## Flight Delay and Cancellation 
 
-The U.S. Department of Transportation (DOT) Bureau of Transportation Statistics monitors the on-time performance of domestic flights operated by major U.S. airlines. The DOT publishes the Air Travel Consumer Report monthly, summarizing on-time, delayed, cancelled, and diverted flights.
+The U.S. Department of Transportation (DOT) Bureau of Transportation Statistics monitors the on-time performance of domestic flights operated by major U.S. carriers. The DOT publishes the Air Travel Consumer Report monthly, which summarizes data on on-time, delayed, canceled, and diverted flights.
 
-This dataset, obtained from the Kaggle [Airline Flight Delay and Cancellation data](https://www.kaggle.com/datasets/patrickzel/flight-delay-and-cancellation-dataset-2019-2023), has been processed and aggregated to display the minimum and maximum number of flights originating from the top 10 U.S. airports with the highest cancellation rates.
+This dataset, sourced from Kaggle's `Airline Flight Delay and Cancellation` data, has been processed and aggregated to showcase the minimum and maximum number of flights originating from the top 10 U.S. airports with the highest cancellation rates.
 
 ### Monthly Flight Variation in US Airport with High Cancellation
 
 This example demonstrates the functionality of `geom_glyph_segment()`, which shows the monthly range of flights for each airport and provides insights into how flight numbers change over time. Additionally, `geom_glyph_ribbon()` visualizes the variation between the minimum and maximum number of flights from each airport, offering a clear depiction of the spread in flight activity.
 
-Users can generate interactive glyphs with `ggiraph::girafe` using `sugarglider`. First, users need to specify tooltips, which are the details displayed when hovering over the glyphs. In this example, the tooltips consist of station id, month, minimum and maximum temperature across all months. 
+Users can generate interactive glyphs with `ggiraph::girafe()` using `sugarglider`. First, users need to specify tooltips, which are the details displayed when hovering over the glyphs. In this example, the tooltips consist of station id, month, minimum and maximum temperature across all months. 
 
 Tooltips must be provided in the aesthetic of the `tooltip` argument. The user can then plot their desired glyph map and save it as a ggplot object. This ggplot object is converted into an interactive glyph map using the `girafe()` function. 
 
@@ -573,13 +567,11 @@ fl <- flights |>
 girafe(ggobj = fl)
 ```
 
-```{r, fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization."}
+```{r, fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations."}
 include_graphics("figures/monthly-flight-variability.png")
 ```
 
 This visualization shows the range of departing flights from each airport on a map. Each line represents the flight range for a specific airport, with the length showing the variability in flight numbers across different locations. Notably, airports like ATL and ORD generally handle a higher volume of departing flights than airports such as MCO and PHX. All airports exhibit fluctuations throughout the year, with broader flight intervals in the middle of the year and narrower intervals during the holiday season at year-end.
-
-The graph highlights that airports in certain regions experience more variability than others. While the line plots precisely estimate this variability, geom_glyph_ribbon() enhances understanding by visually representing the gap between the minimum and maximum flights. Wider ribbons indicate more significant month-to-month fluctuations in flight operations.
 
 ### Flight Pattern Between Western and Eastern Region
 
@@ -612,17 +604,17 @@ flights |>
 include_graphics("figures/west_south.png")
 ```
 
-`geom_glyph_ribbon()` effectively highlights the disparities in flight volume between regions. The Western region exhibits a more significant variation in the number of flights than the Southern region, as evidenced by the thicker ribbons. Notably, both regions display a significant increase in flight volume discrepancies during the mid-year, reinforcing the findings observed with `geom_glyph_segment()`.
+`geom_glyph_ribbon()` highlights the disparities in flight volume between regions. The Western region exhibits a more significant variation in the number of flights than the Southern region, as evidenced by the thicker ribbons. Notably, both regions display a significant increase in flight volume discrepancies during the mid-year, reinforcing the findings observed with `geom_glyph_segment()`.
 
 # Conclusion
 
-This paper introduces the R package `sugarglider`, designed to create glyph maps for visualizing spatiotemporal data using customizable ribbon and segment geometries. The package provides two main functions: geom_glyph_ribbon() and geom_glyph_segment(), which generate ribbon and segment glyphs, respectively. One of the critical features of `sugarglider` is its flexibility in allowing users to customize their visualizations. For example, the global_rescale argument enables users to control whether the rescaling of glyphs should be applied globally across all data points or handled individually for each glyph. Additionally, users can adjust the glyphs' width and height, ensuring that each glyph's appearance can be tailored to the specific dimensions and scaling of the data being visualized. The package supports static and interactive graphics, and several examples are included to demonstrate how `sugarglider` can effectively be used for spatiotemporal data visualization.
+This paper introduces the R package `sugarglider`, designed to create glyph maps for visualizing spatiotemporal data using customizable ribbon and segment geometries. The package provides two main functions: `geom_glyph_ribbon()` and `geom_glyph_segment()`, which generate ribbon and segment glyphs, respectively. One of the critical features of `sugarglider` is its flexibility in allowing users to customize their visualizations. For example, the `global_rescale` argument enables users to control whether the rescaling of glyphs should be applied globally across all data points or handled individually for each glyph. Additionally, users can adjust the glyphs' width and height, ensuring that each glyph's appearance can be tailored to the specific dimensions and scaling of the data being visualized. The package supports static and interactive graphics, and several examples are included to demonstrate how `sugarglider` can effectively be used for spatiotemporal data visualization.
 
-Two potential directions for future development include handling different data types and improving the handling of glyph overlap. Currently, `sugarglider` expects data in a tidy format, but expanding its functionality to work with lists of vectors or matrices would enhance its usability. Additionally, static maps can become overcrowded when too many glyphs are plotted, making it difficult to interpret the visualizations. A possible solution is to collapse overlapping glyphs into a single glyph, with an accompanying data summary for all the collapsed glyphs. These improvements would increase the flexibility and scalability of `sugarglider` for a broader range of data visualization tasks.
+Two potential directions for future development include handling different data types and improving the handling of glyph overlap. Currently, `sugarglider` expects data in a tidy format, but expanding its functionality to work with lists of vectors or matrices would enhance its usability. Additionally, static maps can become overcrowded when too many glyphs are plotted, making it difficult to interpret the visualizations. A possible solution is to collapse overlapping glyphs into a single glyph, with an accompanying data summary for all the collapsed glyphs. Another approach is to repel glyphs away from each other, to prevent overlap. These improvements would increase the flexibility and scalability of `sugarglider` for a broader range of data visualization tasks.
 
 # Acknowledgements
 
-This work is funded by Google Summer of Code in affiliation with the R Project for Statistical Computing. This article is created using the R packages `knitr` (@knitr) and `tools` (@rjtools). The source code for reproducing this paper is available in the supplementary files and also on Github at https://github.com/maliny12/paper-sugarglider. 
+This work is funded by Google Summer of Code in affiliation with the R Project for Statistical Computing. This article is created using the R packages `knitr` (@knitr) and `rjtools` (@rjtools). The source code for reproducing this paper is available in the supplementary files and also on Github at https://github.com/maliny12/paper-sugarglider. Additionally, the source code for the sugarglider package is available at  https://github.com/maliny12/sugarglider . 
 
 
 

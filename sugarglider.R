@@ -26,7 +26,7 @@ library(leaflet)
 library(tinytex)
 
 
-## ----fig.cap="The diagram depicts the structure of a glyph map. The initial layer represents the base map. Subsequent layers comprise glyph boxes and reference lines. The fourth layer encompasses the glyph itself, allowing users to depict ribbon glyphs. The legend layer is optional. It enables users to display a legend—a magnified version of one of the glyphs.", out.width="60%"----
+## ----fig.cap="The diagram depicts the structure of a glyph map. The first layer represents the base map. Subsequent layers comprise glyph boxes and reference lines. The fourth layer encompasses the glyph itself, allowing users to depict ribbon glyphs. The legend layer is optional. It enables users to display a legend—a magnified version of one of the glyphs.", out.width="60%"----
 include_graphics("figures/glyphmap-layers.png")
 
 
@@ -43,6 +43,8 @@ include_graphics("figures/glyphmap-layers.png")
 #>   geom_glyph_ribbon() +
 #>   theme_glyph()
 #> 
+#> 
+#> 
 #> # Segment glyph
 #> vic_temp |>
 #>    ggplot(aes(x_major = long,
@@ -55,8 +57,7 @@ include_graphics("figures/glyphmap-layers.png")
 #>   geom_glyph_segment() +
 #>   theme_glyph()
 
-
-## ----comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps: Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."----
+## ----comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."----
 
 include_graphics("figures/ribbon_segment.png")
 
@@ -146,13 +147,12 @@ knitr::include_graphics("figures/diagram-transformation.png")
 #>     y_minor = tmin,
 #>     yend_minor = tmax)) +
 #>   add_glyph_boxes() +
-#>   geom_point(aes(x = long, y = lat,
-#>                  color = "Weather Station")) +
+#>   geom_point(aes(x = long, y = lat)) +
 #>   geom_glyph_segment() +
 #>   theme_glyph()
 
 
-## ----fig.cap="Daily temperature variations across Australian weather stations are visualized using Geom points to display the weather station locations. Additional codes are required for the base map."----
+## ----fig.cap="Daily temperature variations across Australian weather stations are visualized using segment glyphs and geom points to mark the locations of the stations on the map. Additional coding is needed to integrate a base map into the visualization. This detailed view reveals that the temperature variation in central Australia is more pronounced than in the coastal regions. Additionally, temperatures in the southeastern areas, such as Victoria and Tasmania, are generally lower than those in the northern regions, highlighting regional climate differences across Australia."----
 
 include_graphics("figures/temp_var.png")
 
@@ -171,7 +171,7 @@ include_graphics("figures/temp_var.png")
 #>    theme_glyph()
 
 
-## ----fig.cap="Precipitation and Temperature Ranges Across Australia. Each glyph is colour coded based on the level of precipitation, with sky blue representing the lowest and navy blue representing the highest. Additional codes are needed for the base map and additional theme customization."----
+## ----fig.cap="Precipitation and Temperature Ranges Across Australia. This visualization uses color-coded glyphs to depict variations in precipitation levels, with sky blue representing the lowest and navy blue the highest levels. Additional code is required to incorporate a base map and customize the theme further. From the plot, it is evident that coastal areas receive more rainfall than the central regions."----
 
 include_graphics("figures/prcp_temp.png")
 
@@ -190,7 +190,7 @@ include_graphics("figures/prcp_temp.png")
 #>    theme_glyph()
 
 
-## ----fig.cap="Temperature Trends in Selected Victorian Weather Stations. Additional codes are required for the base map, title, and theme customization."----
+## ----fig.cap="Temperature Trends in Selected Victorian Weather Stations. Additional coding is required for the base map, title, and theme customization. In both years, a noticeable seasonal pattern in temperature is evident, with peaks occurring in the summer months and troughs in the winter."----
 
 include_graphics("figures/hist_temp.png")
 
@@ -208,7 +208,7 @@ include_graphics("figures/hist_temp.png")
 #>   theme_glyph()
 
 
-## ----fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional code is needed for the base map and additional theme customization."----
+## ----fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional coding is required for the base map and further theme customization. In this example, the glyphs are uniformly scaled, representing a temperature range from approximately 5.0 to 35.0 degrees Celsius."----
 
 include_graphics("figures/legend_glyph.png")
 
@@ -291,7 +291,7 @@ include_graphics("figures/leaflet.jpg")
 #>   theme_glyph()
 
 
-## ----fig.cap="Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further."----
+## ----fig.cap="Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further. The plot illustrates the behavioral patterns of train patrons, showing high demand during rush hours on weekdays and consistent, elevated demand throughout the weekend."----
 include_graphics("figures/weekend_weekday.png")
 
 
@@ -317,7 +317,7 @@ include_graphics("figures/weekend_weekday.png")
 #> girafe(ggobj = fl)
 
 
-## ----fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization."----
+## ----fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations."----
 include_graphics("figures/monthly-flight-variability.png")
 
 
