@@ -28,10 +28,10 @@ Regards,
     
     
 Maliny Po 
-Department of Letter Q  
-University of Little Mates  
-Somewhere, Australia  
-qquo@ulm.edu
+Department of Econometrics and Business Statistics 
+Monash University 
+Melbourne, Australia   
+malinypo12@gmail.com 
 
 \bigskip
 
