@@ -492,8 +492,8 @@ purrr::map(1:length(df_station), function(i) {
   dt <- train |> filter(station_name == df_station[i])
   p <- dt |>
   ggplot(aes(x_major = long, y_major = lat,
-                   x_minor = month_year, ymin_minor = min_monthly,
-                   ymax_minor = max_monthly)) +
+                   x_minor = hour, ymin_minor = min_weekday,
+                   ymax_minor = max_weekday)) +
     add_glyph_boxes() +
     add_ref_lines() +
     geom_glyph_ribbon() +
@@ -520,11 +520,12 @@ Next, we iterate through all the images and convert them into icons using the \t
 # Loop through the PNG files and add them to the map
 for (i in seq_along(train_png)) {
   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
-
+  
   dt <- train |> filter(station_name == df_station[i])
   leaflet_map <- leaflet_map |>
-    addMarkers(lng = dt$long[1], lat = dt$lat[1], icon = icon,
-               label = dt$station_name, options = markerOptions(opacity = 0.1))
+    addMarkers(lng = dt$long[1], lat = dt$lat[1], 
+               icon = icon, label = dt$station_name[1],
+               options = markerOptions(opacity = 0.7))
 }
 
 leaflet_map
@@ -585,7 +586,7 @@ weekend <- station |>
 
 }
 
-\caption{Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further. The plot illustrates the behavioral patterns of train patrons, showing high demand during rush hours on weekdays and consistent, elevated demand throughout the weekend.}\label{fig:unnamed-chunk-21}
+\caption{Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further. The plot illustrates the behavioral patterns of train patrons, showing high demand during rush hours on weekdays and consistent, elevated demand throughout the weekend.}\label{fig:unnamed-chunk-22}
 \end{figure}
 
 The plot provides insightful observations into train service traffic within the Melbourne City LGA, emphasizing distinctions between weekday and weekend patronage. A significant volume of train services is apparent in the city loop, where major connecting hubs such as Flinders Street Station are situated. These stations are depicted with darker shades of brown, indicating up to 20 services, starkly contrasting with the lighter color gradients that signify lower train services.
@@ -636,7 +637,7 @@ girafe(ggobj = fl)
 
 }
 
-\caption{Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations.}\label{fig:unnamed-chunk-23}
+\caption{Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations.}\label{fig:unnamed-chunk-24}
 \end{figure}
 
 This visualization shows the range of departing flights from each airport on a map. Each line represents the flight range for a specific airport, with the length showing the variability in flight numbers across different locations. Notably, airports like ATL and ORD generally handle a higher volume of departing flights than airports such as MCO and PHX. All airports exhibit fluctuations throughout the year, with broader flight intervals in the middle of the year and narrower intervals during the holiday season at year-end.
@@ -674,7 +675,7 @@ flights |>
 
 }
 
-\caption{Comparison of flight patterns between the western and southern regions. Additional codes are needed for the base map and additional theme customization.}\label{fig:unnamed-chunk-25}
+\caption{Comparison of flight patterns between the western and southern regions. Additional codes are needed for the base map and additional theme customization.}\label{fig:unnamed-chunk-27}
 \end{figure}
 
 \texttt{geom\_glyph\_ribbon()} highlights the disparities in flight volume between regions. The Western region exhibits a more significant variation in the number of flights than the Southern region, as evidenced by the thicker ribbons. Notably, both regions display a significant increase in flight volume discrepancies during the mid-year, reinforcing the findings observed with \texttt{geom\_glyph\_segment()}.
@@ -689,7 +690,7 @@ Two potential directions for future development include handling different data 
 \hypertarget{acknowledgements}{%
 \section{Acknowledgements}\label{acknowledgements}}
 
-This work is funded by Google Summer of Code in affiliation with the R Project for Statistical Computing. This article is created using the R packages \texttt{knitr} (Xie (2014)) and \texttt{rjtools} (O'Hara-Wild et al. (2024)). The source code for reproducing this paper is available in the supplementary files and also on Github at \url{https://github.com/maliny12/paper-sugarglider}. Additionally, the source code for the sugarglider package is available at \url{https://github.com/maliny12/sugarglider} .
+This work is funded by Google Summer of Code in affiliation with the R Project for Statistical Computing. This article is created using the R packages \texttt{knitr} (Xie (2014)) and \texttt{rjtools} (O'Hara-Wild et al. (2024)). The source code for reproducing this paper is available in the supplementary files and also on Github at \url{https://github.com/maliny12/paper-sugarglider}. Additionally, the \texttt{sugarglider} package is available on CRAN, with its source code accessible at \url{https://github.com/maliny12/sugarglider} .
 
 \hypertarget{references}{%
 \section*{References}\label{references}}

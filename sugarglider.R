@@ -95,7 +95,7 @@ glimpse(aus_temp)
 #>   theme_glyph()
 
 
-## ----defaultRescale, fig.cap="The figure illustrates the effect of rescaling on ribbon glyphs. With the default rescaling, all minor axes are adjusted to fit within the interval [-1, 1], whereas the custom rescale function adjusts the minor axes to the interval [0, 1]. Additional code is required to plot the base map alongside the rescaled glyphs."----
+## ----defaultRescale,fig.cap="The figure illustrates the effect of rescaling on ribbon glyphs. With the default rescaling, all minor axes are adjusted to fit within the interval [-1, 1], whereas the custom rescale function adjusts the minor axes to the interval [0, 1]. Additional code is required to plot the base map alongside the rescaled glyphs."----
 
 include_graphics("figures/custom_rescale.png")
 
@@ -213,8 +213,7 @@ include_graphics("figures/hist_temp.png")
 include_graphics("figures/legend_glyph.png")
 
 
-## ----echo=TRUE, eval=FALSE----------------------------------------------------
-#> 
+## ----eval = FALSE, echo=TRUE--------------------------------------------------
 #> # Generate a list of unique train stations
 #> df_station <- train$station_name |> unique()
 #> 
@@ -223,8 +222,8 @@ include_graphics("figures/legend_glyph.png")
 #>   dt <- train |> filter(station_name == df_station[i])
 #>   p <- dt |>
 #>   ggplot(aes(x_major = long, y_major = lat,
-#>                    x_minor = month_year, ymin_minor = min_monthly,
-#>                    ymax_minor = max_monthly)) +
+#>                    x_minor = hour, ymin_minor = min_weekday,
+#>                    ymax_minor = max_weekday)) +
 #>     add_glyph_boxes() +
 #>     add_ref_lines() +
 #>     geom_glyph_ribbon() +
@@ -237,29 +236,66 @@ include_graphics("figures/legend_glyph.png")
 #> 
 
 
-## ----echo=TRUE, eval=FALSE----------------------------------------------------
+## ----echo=TRUE, eval= knitr::is_html_output()---------------------------------
 #> # Create a leaflet map
 #> leaflet_map <- leaflet() |>
 #>   addProviderTiles("CartoDB.Positron") |>
 #>   addScaleBar(position = "bottomleft")
 
 
-## ----echo=TRUE,eval=FALSE-----------------------------------------------------
+## ----echo=TRUE, eval= FALSE---------------------------------------------------
 #> # Loop through the PNG files and add them to the map
 #> for (i in seq_along(train_png)) {
 #>   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
 #> 
 #>   dt <- train |> filter(station_name == df_station[i])
 #>   leaflet_map <- leaflet_map |>
-#>     addMarkers(lng = dt$long[1], lat = dt$lat[1], icon = icon,
-#>                label = dt$station_name, options = markerOptions(opacity = 0.1))
+#>     addMarkers(lng = dt$long[1], lat = dt$lat[1],
+#>                icon = icon, label = dt$station_name[1],
+#>                options = markerOptions(opacity = 0.7))
 #> }
 #> 
 #> leaflet_map
 
 
-## ----fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"----
+## ----eval= knitr::is_latex_output(), fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"----
 include_graphics("figures/leaflet.jpg")
+
+
+## ----eval= knitr::is_html_output(), fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"----
+#> 
+#> zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
+#>            "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
+#>            "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
+#>            "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
+#>            "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
+#>            "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
+#>            "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
+#>            "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
+#>            "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
+#>            "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
+#>            "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
+#>            "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
+#>            "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
+#>            "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
+#>            "Armadale",	"Anstey",	"Alphington","Alamein")
+#> 
+#> train_png <- readRDS("data/train_list")
+#> 
+#> # Loop through the PNG files and add them to the map
+#> for (i in seq_along(train_png)) {
+#>   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
+#> 
+#>   dt <- train |> filter(station_name == zone1[i])
+#>   leaflet_map <- leaflet_map |>
+#>     addMarkers(lng = dt$long[1],
+#>                lat = dt$lat[1],
+#>                icon = icon,
+#>                label = dt$station_name[1],
+#>                options = markerOptions(opacity = 0.7))
+#> }
+#> 
+#> leaflet_map
 
 
 ## ----eval=FALSE, echo=TRUE----------------------------------------------------
@@ -317,8 +353,36 @@ include_graphics("figures/weekend_weekday.png")
 #> girafe(ggobj = fl)
 
 
-## ----fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations."----
+## ----eval= knitr::is_latex_output(), fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations."----
 include_graphics("figures/monthly-flight-variability.png")
+
+
+## ----eval = knitr::is_html_output(), fig.cap="Monthly Flight Variability Based on the top 10 US airports with high cancellation rates. Additional codes are needed for the base map and additional theme customization. The graph highlights that airports in certain regions experience more variability than others. Each line segment represent the gap between the minimum and maximum flights. Longer segment indicate more significant month-to-month fluctuations in flight operations."----
+#> USmap <- us_map(regions = "state") |>
+#>   filter(full != "Alaska")
+#> 
+#> # Specify tooltip for ggiraph
+#> flights <- flights |>
+#>   mutate(tooltip = paste("origin: ",origin,
+#>                          "\nmonth: ", month,
+#>                          "\nmin_flights: ", min_flights,
+#>                          "\nmax_flights: ", max_flights))
+#> 
+#> fl <- flights |>
+#>   ggplot(aes(x_major = long, y_major = lat,
+#>              x_minor = month, y_minor = min_flights,
+#>              yend_minor = max_flights,
+#>              tooltip = tooltip)) +
+#>   geom_sf(data = USmap, color = "white",
+#>           fill = "antiquewhite", inherit.aes = FALSE) +
+#>   coord_sf(crs = st_crs(4326)) +
+#>   add_glyph_boxes(color = "#CD5C08") +
+#>   add_ref_lines(color = "#CD5C08") +
+#>   geom_glyph_segment(color = "#CD5C08") +
+#>   theme_glyph()
+#> 
+#> # Interactive plot using ggiraph
+#> girafe(ggobj = fl)
 
 
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------

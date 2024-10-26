@@ -7,10 +7,28 @@ vic_temp <- aus_temp |>
 nsw_temp <- aus_temp |>
   filter(id %in% c("ASN00055325", "ASN00049000"))
 
+sample <- c("South Yarra", "Carnegie",
+            "Moonee Pond", "Footscray", "Essendon", "Camberwell",
+            "Gardiner", "Essendon", "Moreland", "Flagstaff")
+
+zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
+           "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
+           "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
+           "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
+           "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
+           "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
+           "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
+           "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
+           "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
+           "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
+           "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
+           "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
+           "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
+           "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
+           "Armadale",	"Anstey",	"Alphington","Alamein")
 
 
-
-# Plot -----------------------------------------------
+# Examples ------------------------------------------------------------------
 
 # Comparison between ribbon glyph and segment glyph -------------------------
 # Define a color palette
@@ -272,6 +290,8 @@ legend_glyph <- aus_temp |>
 ggsave("legend_glyph.png", legend_glyph,
        path = "figures",width = 12, height = 6, units = "in", dpi = 300)
 
+# Applications -------------------------------------------------------------
+
 # Interactive plot with girafe ---------------------------------------------
 
 USmap <- us_map(regions = "state") |>
@@ -344,13 +364,14 @@ ggsave("west_south.png", west_south,
 # download.file("https://data.gov.au/data/dataset/bdf92691-c6fe-42b9-a0e2-a4cd716fa811/resource/38a8a499-928c-4de6-b6d2-2fceb74870a9/download/gda94.zip", destfile = "VICLGA.zip")
 #
 # unzip("VICLGA.zip")
+# Due to the file size, this shapefile is not included in the repository.
+# Please download and unzip the "VICLGA" folder before loading the sf object.
+vic_lga <- read_sf("data/GDA94/vic_lga.shp")
 
 melbourne_lga <- c("Maribyrnong City", "Moonee Valley City","Merri-Bek City",
                    "Melbourne City", "Stonnington City", "Yarra City",
                   "Boroondara City", "Glen Eira City", "Moreland City",
                   "Darebin City")
-
-
 
 melbourne_city_lga <- c("Flagstaff", "Melbourne Central", "Kensington", "South Kensington",
                         "Jolimont", "Flinders Street", "Flemington Bridge",
@@ -360,8 +381,6 @@ melbourne_city_lga <- c("Flagstaff", "Melbourne Central", "Kensington", "South K
 station <- train |>
   mutate(hour = factor(hour, levels = sprintf("%02d:00", 5:23), ordered = TRUE)) |>
   filter(station_name %in% melbourne_city_lga)
-
-vic_lga <- read_sf("data/GDA94/vic_lga.shp")
 
 weekday <- station |>
   group_by(station_name) |>
@@ -448,30 +467,33 @@ ggsave("weekend_weekday.png", final_plot,
 # ggsave("vline.png", vline_holiday,
 #        path = "figures",width = 12, height = 6, units = "in", dpi = 300)
 
-# ------------------------------------------------------------------
+#  Leaflet ------------------------------------------------------------------
 
-zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
-           "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
-           "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
-           "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
-           "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
-           "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
-           "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
-           "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
-           "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
-           "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
-           "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
-           "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
-           "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
-           "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
-           "Armadale",	"Anstey",	"Alphington","Alamein")
+# Generate PNG of all the ribbon glyph
+purrr::map(1:length(zone1), function(i) {
+  dt <- train |> filter(station_name == zone1[i])
+  p <- dt |>
+    ggplot(aes(x_major = long, y_major = lat,
+               x_minor = hour, ymin_minor = min_weekday,
+               ymax_minor = max_weekday)) +
+    add_glyph_boxes(color = "#ffc40d",
+                    fill = "#eff4ff", alpha = 0.5,
+                    linewidth = 1, width = 3, height  = 1.5) +
+    add_ref_lines(color = "#ffc40d", alpha = 1,
+                  linewidth = 1, width = 3, height  = 1.5) +
+    geom_glyph_ribbon(color = "#2b5797", fill = "#2b5797",
+                      width = 3, height  = 1.5) +
+    theme_void()
 
-sample <- c("South Yarra", "Carnegie",
-            "Moonee Pond", "Footscray", "Essendon", "Camberwell",
-            "Gardiner", "Essendon", "Moreland", "Flagstaff")
+  file_path <- paste0("figures/glyph_", zone1[i], ".png")
+  ggsave(file_path, plot = p, width = 3, height = 1.5, units = "in", dpi = 300,
+         bg = "transparent")
+  return(file_path)
 
+}) -> train_png
 
-
+# Save image path as RDS object
+saveRDS(train_png, file = "data/train_list")
 
 
 
