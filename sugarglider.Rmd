@@ -1,7 +1,7 @@
 ---
 title: "sugarglider: Create Glyph-maps of Spatiotemporal Data"
 abstract: > 
- Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. Glyph maps use specialized multivariate glyph plots that depict and summarize data at each spatial location over time. A variant of glyph maps, the line glyph, illustrates changes over time but falls short in capturing the diverse components of spatiotemporal data. To address this limitation, `sugarglider` extend glyph maps with ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
+ Spatiotemporal data visualization allows users to explore events and interactions over space and time, making it easier to discover patterns, anomalies, and relationships within the data. Glyph maps use specialized multivariate glyph plots that depict and summarize data at each spatial location over time. A variant of glyph maps, the line glyph, illustrates changes over time but falls short in capturing the diverse components of spatiotemporal data. To address this limitation, `sugarglider` extends glyph maps with ribbon and segment geometries to depict seasonal trends, variations, and data ranges.
 draft: true
 author:  
   - name: Maliny Po
@@ -36,13 +36,10 @@ author:
 type: package
 output: 
   #rjtools::rjournal_article:
-  rjtools::rjournal_pdf_article:
+  rjtools::rjournal_web_article:
     self_contained: yes
     toc: no
 bibliography: sugarglider-journal.bib
-header-includes:
- \usepackage{float}
- \floatplacement{figure}{H}
   
 ---
 
@@ -75,7 +72,7 @@ library(tinytex)
 
 Spatiotemporal data visualization allows users to explore events and interactions across space and time. This approach enables the discovery of temporal patterns, anomalies, and relationships within the data. As  @kim2017data explains, a natural way to analyze spatiotemporal data is by plotting it on a map and incorporating animation controls or small multiple views to visualize each time step. This method helps analysts gain insights into the spatial distribution of the data and the patterns or correlations that emerge over time within these distributions.
 
-One method for visualizing spatiotemporal data is `glyph maps`. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element positioned at a specific location on the map. Each glyph comprises of two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
+One method for visualizing spatiotemporal data is `glyph maps`. Glyph maps are specialized visual tools that condense multivariate data into a single graphical element positioned at a specific location on the map. Each glyph comprises two main structural components: spatial coordinates and data values. This visualization allows for the simultaneous viewing of local patterns (specific to individual locations) and global patterns (across all locations). A variation of the glyph map is the Line Glyph. However, one limitation of this type of plot is that it can only display changes over time and does not effectively capture different data components.
 
 To address this limitation, the `sugarglider` package was developed, enhancing glyph maps with the addition of ribbon and segment glyphs specifically designed for exploring variations and seasonal components in spatiotemporal data. This package includes two core functions: `geom_glyph_ribbon()` and `geom_glyph_segment()`, which enable the creation of ribbon and segment glyph maps, respectively. The `geom_glyph_ribbon()` function visualizes intervals between two values, making it perfect for depicting ranges or uncertainties. Meanwhile, the `geom_glyph_segment()` function connects data points to showcase trends and transitions.
 
@@ -97,7 +94,7 @@ Glyph maps are specialized forms of multivariate glyph plots that represent each
 
 The construction of a glyph map evolves around a transformation technique that utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as `GGally` by @GGally and `cubble` by @JSSv110i07, facilitating a more integrated approach to spatiotemporal data visualization.
 
-For a plot to be helpful for a specific data analysis task, it should make primary comparisons easy to see. Mapping values to the position is one of the most straightforward perceived properties (@f076b642-1914-3749-af10-4b3bcbdaef52). Glyph maps display changes in slope, trend, average value, and variance over time. They organize the graphical elements necessary for temporal comparisons. However, glyph maps, primarily when representing linear trends as icons, may be subject to the Zöllner Illusion, which distorts straight lines. Therefore, accurate perception of change requires the implementation of reference frames and scaling (@wickham2012glyph)
+For a plot to be helpful for a specific data analysis task, it should make primary comparisons easy to see. Mapping values to the position is one of the most straightforward perceived properties (@f076b642-1914-3749-af10-4b3bcbdaef52). Glyph maps display changes in slope, trend, average value, and variance over time. They organize the graphical elements necessary for temporal comparisons. However, glyph maps, primarily when representing linear trends as icons, may be subject to the Zöllner Illusion, which distorts straight lines. Therefore, accurate perception of change requires the implementation of reference frames and scaling (@wickham2012glyph). 
 
 ## `ggplot2` extensions
 
@@ -182,7 +179,7 @@ The functions `add_ref_box()`, `add_ref_line()`, and `add_geom_legend()` are com
 
 ## Options  
 
-Options within the `sugarglider` package allow you to tailor the behaviour of your visualizations to meet the specific needs of your analysis. The *global_rescale* argument controls whether rescaling should occur globally across all data points or be handled individually for each glyph.
+Options within the `sugarglider` package allow you to tailor the behavior of your visualizations to meet the specific needs of your analysis. The *global_rescale* argument controls whether rescaling should occur globally across all data points or be handled individually for each glyph.
 
 `sugarglider` also offers a variety of customizable features to enhance the flexibility and precision of visualizations. For example, it facilitates the scaling of minor values within the glyph along the x and y axes. Users can specify their rescale function by replacing *"identity"* with a custom function in *x_scale* and *y_scale*. Suppose a user wishes to modify the rescaling function on only one axis. In that case, they can replace the value of the corresponding parameter with their chosen function and retain "identity" for the other. In this package, "identity" rescales the minor axes to an interval of [-1,1]. The impact of rescaling on glyphs and its implications for visual interpretation will be thoroughly discussed in the upcoming section.
 
@@ -417,7 +414,7 @@ include_graphics("figures/legend_glyph.png")
 # Application 
 
 This section presents four examples showcasing the applications of the `sugarglider` package. The first two examples utilize the `Train Service Passenger Counts data` from `DataVic`. The initial example demonstrates the creation of ribbon glyph maps with Leaflet to explore variations in train service passenger counts. The second example uses segment glyphs to analyze daily variations in train passenger count in Melbourne City LGA.
-The remaining two examples are based on the `Airline Flight Delay and Cancellation` data from `Kaggle.` The third example features an interactive segment glyphs, developed with `ggiraph`, to analyze flight variations at the top 19 US airports with high cancellation rates. Finally, the fourth example uses ribbon glyphs to compare flight variations between the western and southern regions.
+The remaining two examples are based on the `Airline Flight Delay and Cancellation` data from `Kaggle.` The third example features interactive segment glyphs, developed with `ggiraph`, to analyze flight variations at the top 19 US airports with high cancellation rates. Finally, the fourth example uses ribbon glyphs to compare flight variations between the western and southern regions.
 
 ## Train service passenger counts
 
@@ -425,11 +422,11 @@ The `Train Service Passenger Counts` dataset, published by `DataVic`, provides e
 
 ### Victorian train station patronage
 
-Interactive graphics are particularly useful when working with spatiotemporal data, allowing users to explore the data from multiple perspectives. The `cubble` package exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). This paper will demonstrate how to create interactive glyph maps using leaflet.
+Interactive graphics are particularly useful when working with spatiotemporal data, allowing users to explore the data from multiple perspectives. The `cubble` package exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). This paper will demonstrate how to create interactive glyph maps using leaflets.
 
 Making a glyph map using a leaflet is helpful for high-density data where many observations are clustered together or overlap. With leaflet's ability to pan in and out, we can display all the glyphs regardless of how close they are to each other. Static maps cannot achieve this since we can only plot a certain number of glyphs before it gets overcrowded. 
 
-To create interactive glyph maps with leaflets, we need to save each glyph as an image and add these to the Leaflet base map as icons. The process begins by creating a list of all unique train stations that service metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`, `add_glyph_boxes()` and `add_ref_lines()`. Each glyph is saved as image, and the file paths for all the images are stored in an object for the next step.
+To create interactive glyph maps with leaflets, we need to save each glyph as an image and add these to the Leaflet base map as icons. The process begins by creating a list of all unique train stations that service the metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`, `add_glyph_boxes()` and `add_ref_lines()`. Each glyph is saved as an image, and the file paths for all the images are stored in an object for the next step.
 
 ```{r, eval = FALSE, echo=TRUE}
 # Generate a list of unique train stations
@@ -456,7 +453,9 @@ purrr::map(1:length(df_station), function(i) {
 
 To create the base map for leaflet, we use the `leaflet()` function and `addProviderTiles()` with `CartoDB.Positron` as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
 
-```{r, echo=TRUE, eval= knitr::is_html_output()}
+```{r, echo=TRUE, eval= FALSE}
+
+# eval= knitr::is_html_output()
 # Create a leaflet map 
 leaflet_map <- leaflet() |>
   addProviderTiles("CartoDB.Positron") |>
@@ -480,11 +479,13 @@ for (i in seq_along(train_png)) {
 leaflet_map
 ```
 
-```{r, eval= knitr::is_latex_output(), fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"}
+```{r, fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"}
 include_graphics("figures/leaflet.jpg")
 ```
 
-```{r, eval= knitr::is_html_output(), fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"}
+```{r, eval= FALSE, fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"}
+
+# eval = knitr::is_html_output()
 
 zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
            "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
@@ -518,6 +519,9 @@ for (i in seq_along(train_png)) {
 }
 
 leaflet_map
+
+
+saveWidget(leaflet_map, file="leaflet_map.html")
 ```
 
 The plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, depicting the fluctuations in train traffic at each location throughout the day.
@@ -565,7 +569,7 @@ include_graphics("figures/weekend_weekday.png")
 
 The plot provides insightful observations into train service traffic within the Melbourne City LGA, emphasizing distinctions between weekday and weekend patronage. A significant volume of train services is apparent in the city loop, where major connecting hubs such as Flinders Street Station are situated. These stations are depicted with darker shades of brown, indicating up to 20 services, starkly contrasting with the lighter color gradients that signify lower train services.
 
-The analysis further reveals a discrepancy in traffic between weekdays and weekends. For the majority of the train stations, there is a larger variation in patronage during the weekend compared to weekdays. This pattern is consistent across all stations, regardless of the number of train lines each station accommodates. Additionally, there are less pronounced peaks during the weekends, as there is high but consistent traffic throughout the day. In contrast, weekdays see significant spikes during rush hours due to large numbers of people boarding trains in the morning and evening for school and work, with fewer patrons in between the peaks. This trend underscores the reliance on public transport during certain time of the day and could be pivotal for future decisions regarding scheduling and resource allocation within the transit system.
+The analysis further reveals a discrepancy in traffic between weekdays and weekends. For the majority of the train stations, there is a larger variation in patronage during the weekend compared to weekdays. This pattern is consistent across all stations, regardless of the number of train lines each station accommodates. Additionally, there are less pronounced peaks during the weekends, as there is high but consistent traffic throughout the day. In contrast, weekdays see significant spikes during rush hours due to large numbers of people boarding trains in the morning and evening for school and work, with fewer patrons in between the peaks. This trend underscores the reliance on public transport during certain times of the day and could be pivotal for future decisions regarding scheduling and resource allocation within the transit system.
 
 ## Flight Delay and Cancellation 
 

@@ -508,6 +508,7 @@ purrr::map(1:length(df_station), function(i) {
 To create the base map for leaflet, we use the \texttt{leaflet()} function and \texttt{addProviderTiles()} with \texttt{CartoDB.Positron} as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
 
 \begin{verbatim}
+# eval= knitr::is_html_output()
 # Create a leaflet map 
 leaflet_map <- leaflet() |>
   addProviderTiles("CartoDB.Positron") |>

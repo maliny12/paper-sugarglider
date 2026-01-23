@@ -236,7 +236,9 @@ include_graphics("figures/legend_glyph.png")
 #> 
 
 
-## ----echo=TRUE, eval= knitr::is_html_output()---------------------------------
+## ----echo=TRUE, eval= FALSE---------------------------------------------------
+#> 
+#> # eval= knitr::is_html_output()
 #> # Create a leaflet map
 #> leaflet_map <- leaflet() |>
 #>   addProviderTiles("CartoDB.Positron") |>
@@ -258,11 +260,13 @@ include_graphics("figures/legend_glyph.png")
 #> leaflet_map
 
 
-## ----eval= knitr::is_latex_output(), fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"----
+## ----fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"----
 include_graphics("figures/leaflet.jpg")
 
 
-## ----eval= knitr::is_html_output(), fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"----
+## ----eval= FALSE, fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"----
+#> 
+#> # eval = knitr::is_html_output()
 #> 
 #> zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
 #>            "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
@@ -296,6 +300,9 @@ include_graphics("figures/leaflet.jpg")
 #> }
 #> 
 #> leaflet_map
+#> 
+#> 
+#> saveWidget(leaflet_map, file="leaflet_map.html")
 
 
 ## ----eval=FALSE, echo=TRUE----------------------------------------------------
