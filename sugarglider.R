@@ -284,7 +284,7 @@ include_graphics("figures/leaflet.jpg")
 #>            "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
 #>            "Armadale",	"Anstey",	"Alphington","Alamein")
 #> 
-#> train_png <- readRDS("data/train_list")
+#> train_png <- readRDS("data/train_list.rds")
 #> 
 #> # Loop through the PNG files and add them to the map
 #> for (i in seq_along(train_png)) {
