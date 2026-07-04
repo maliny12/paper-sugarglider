@@ -94,6 +94,8 @@ Glyph maps are specialized forms of multivariate glyph plots that represent each
 
 The construction of a glyph map evolves around a transformation technique that utilizes principles of linear algebra to convert temporal coordinates (minor coordinates) into spatial coordinates (major coordinates). This transformation is implemented in packages such as `GGally` by @GGally and `cubble` by @JSSv110i07, facilitating a more integrated approach to spatiotemporal data visualization.
 
+Although `GGally` and `cubble` perform coordinate transformations as a pre-processing step and provide tools for creating glyph maps, both packages depict each glyph solely as a time series. Neither, however, includes a geom for encoding intervals, which is crucial for visualizing uncertainty or data ranges. To address this limitation, `sugarglider` introduces Glyph Ribbons and Glyph Segments, allowing users to visualize uncertainties and seasonal patterns in spatiotemporal data. These features will be described in more detail in a later section.
+
 For a plot to be helpful for a specific data analysis task, it should make primary comparisons easy to see. Mapping values to the position is one of the most straightforward perceived properties (@f076b642-1914-3749-af10-4b3bcbdaef52). Glyph maps display changes in slope, trend, average value, and variance over time. They organize the graphical elements necessary for temporal comparisons. However, glyph maps, primarily when representing linear trends as icons, may be subject to the Zöllner Illusion, which distorts straight lines. Therefore, accurate perception of change requires the implementation of reference frames and scaling (@wickham2012glyph). 
 
 ## `ggplot2` extensions
@@ -190,7 +192,7 @@ Additionally, the width and height of the glyphs are adjustable, allowing users 
 | `x_scale`         | `"identity"`         | This function scales each set of minor values within a grid cell along the x-dimension.
 |`y_scale`      | `"identity"`          | This function scales each set of minor values within a grid cell along the y-dimension.
 |`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method.
-|`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio.
+|`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio. This default behavior can be freely overwritten using the argument.
 |`global_rescale`      | `TRUE`        | Determines whether rescaling is applied globally across all glyphs or individually for each glyph
 
 ## Data structure 
