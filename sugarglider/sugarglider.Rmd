@@ -430,107 +430,17 @@ The `Train Service Passenger Counts` dataset, published by `DataVic`, provides e
 
 Interactive graphics are particularly useful when working with spatiotemporal data, allowing users to explore the data from multiple perspectives. The `cubble` package exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). This paper will demonstrate how to create interactive glyph maps using leaflets.
 
-Making a glyph map using a leaflet is helpful for high-density data where many observations are clustered together or overlap. With leaflet's ability to pan in and out, we can display all the glyphs regardless of how close they are to each other. Static maps cannot achieve this since we can only plot a certain number of glyphs before it gets overcrowded. 
+Making a glyph map using a leaflet is helpful for high-density data where many observations are clustered together or overlap, such is the case for the Victorian Train data. With leaflet's ability to pan in and out, we can display all the glyphs regardless of how close they are to each other. 
 
-To create interactive glyph maps with leaflets, we need to save each glyph as an image and add these to the Leaflet base map as icons. The process begins by creating a list of all unique train stations that service the metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`, `add_glyph_boxes()` and `add_ref_lines()`. Each glyph is saved as an image, and the file paths for all the images are stored in an object for the next step.
+To create interactive glyph maps with leaflets, we need to save each glyph as an image and add these to the Leaflet base map as icons. The process begins by creating a list of all unique train stations that service the metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`. Each glyph is saved as an image, and the file paths for all the images are stored in an object for the next step.
 
-```{r, eval = FALSE, echo=TRUE}
-# Generate a list of unique train stations
-df_station <- train$station_name |> unique()
-
-# Generate PNG of all the ribbon glyph
-purrr::map(1:length(df_station), function(i) {
-  dt <- train |> filter(station_name == df_station[i])
-  p <- dt |>
-  ggplot(aes(x_major = long, y_major = lat,
-                   x_minor = hour, ymin_minor = min_weekday,
-                   ymax_minor = max_weekday)) +
-    add_glyph_boxes() +
-    add_ref_lines() +
-    geom_glyph_ribbon() +
-    theme_void() 
-  
-  file_path <- paste0("figures/glyph_", df_station[i], ".png")
-  ggsave(file_path)
-  return(file_path)
-  }) -> train_png 
-
-```
-
-To create the base map for leaflet, we use the `leaflet()` function and `addProviderTiles()` with `CartoDB.Positron` as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
-
-```{r, echo=TRUE, eval= FALSE}
-
-# eval= knitr::is_html_output()
-# Create a leaflet map 
-leaflet_map <- leaflet() |>
-  addProviderTiles("CartoDB.Positron") |>
-  addScaleBar(position = "bottomleft")
-```
-
-Next, we iterate through all the images and convert them into icons using the `makeIcon()` function. Users can control the dimensions of each icon by modifying the `iconWidth` and `iconHeight` arguments. The final step is to add each icon to the Leaflet map using `addMarkers()`. Within the options argument of `addMarkers`, users can fine-tune each glyph's display properties, such as the opacity level. The `label` argument allows users to specify the information they wish to display with the hover-over effect, which is set to display the station ID in this example.
-
-```{r, echo=TRUE, eval= FALSE}
-# Loop through the PNG files and add them to the map
-for (i in seq_along(train_png)) {
-  icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
-  
-  dt <- train |> filter(station_name == df_station[i])
-  leaflet_map <- leaflet_map |>
-    addMarkers(lng = dt$long[1], lat = dt$lat[1], 
-               icon = icon, label = dt$station_name[1],
-               options = markerOptions(opacity = 0.7))
-}
-
-leaflet_map
-```
+The workflow begins by identifying unique train stations and generating ribbon glyphs to represent the daily pattern of passenger traffic at each location. These glyphs are saved as image files and linked to their respective stations. An interactive base map is then constructed using Leaflet, onto which the glyph images are added as custom markers at each station’s geospatial coordinates. 
 
 ```{r, fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"}
 include_graphics("figures/leaflet.jpg")
 ```
 
-```{r, eval= FALSE, fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"}
-
-# eval = knitr::is_html_output()
-
-zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
-           "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
-           "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
-           "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
-           "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
-           "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
-           "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
-           "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
-           "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
-           "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
-           "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
-           "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
-           "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
-           "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
-           "Armadale",	"Anstey",	"Alphington","Alamein")
-
-train_png <- readRDS("data/train_list.rds")
-
-# Loop through the PNG files and add them to the map
-for (i in seq_along(train_png)) {
-  icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
-
-  dt <- train |> filter(station_name == zone1[i])
-  leaflet_map <- leaflet_map |>
-    addMarkers(lng = dt$long[1],
-               lat = dt$lat[1],
-               icon = icon,
-               label = dt$station_name[1],
-               options = markerOptions(opacity = 0.7))
-}
-
-leaflet_map
-
-
-saveWidget(leaflet_map, file="leaflet_map.html")
-```
-
-The plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, depicting the fluctuations in train traffic at each location throughout the day.
+The resulting plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, depicting the fluctuations in train traffic at each location throughout the day.
 
 In the central Melbourne area, especially around major hubs like Melbourne Central Station, there is a significant variation in traffic, with peaks occurring in the middle of the day. This indicates a substantial influx of people, highlighting the central business district (CBD) as the city's primary transit hub.
 

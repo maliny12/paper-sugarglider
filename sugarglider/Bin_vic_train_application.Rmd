@@ -1,0 +1,150 @@
+### Victorian train station patronage
+
+Interactive graphics are particularly useful when working with spatiotemporal data, allowing users to explore the data from multiple perspectives. The `cubble` package exemplifies this by creating linked interactive plots using `crosswalk::bscols()` (@JSSv110i07). This paper will demonstrate how to create interactive glyph maps using leaflets.
+
+Making a glyph map using a leaflet is helpful for high-density data where many observations are clustered together or overlap, such is the case for the Victorian Train data. With leaflet's ability to pan in and out, we can display all the glyphs regardless of how close they are to each other. 
+
+To create interactive glyph maps with leaflets, we need to save each glyph as an image and add these to the Leaflet base map as icons. The process begins by creating a list of all unique train stations that service the metro and vline. We then iterate over each station and generate ribbon glyphs using `geom_glyph_ribbon()`, `add_glyph_boxes()` and `add_ref_lines()`. Each glyph is saved as an image, and the file paths for all the images are stored in an object for the next step.
+
+```{r, eval = FALSE, echo=TRUE}
+# Generate a list of unique train stations
+df_station <- train$station_name |> unique()
+
+# Generate PNG of all the ribbon glyph
+purrr::map(1:length(df_station), function(i) {
+  dt <- train |> filter(station_name == df_station[i])
+  p <- dt |>
+  ggplot(aes(x_major = long, y_major = lat,
+                   x_minor = hour, ymin_minor = min_weekday,
+                   ymax_minor = max_weekday)) +
+    add_glyph_boxes() +
+    add_ref_lines() +
+    geom_glyph_ribbon() +
+    theme_void() 
+  
+  file_path <- paste0("figures/glyph_", df_station[i], ".png")
+  ggsave(file_path)
+  return(file_path)
+  }) -> train_png 
+
+```
+
+To create the base map for leaflet, we use the `leaflet()` function and `addProviderTiles()` with `CartoDB.Positron` as the provider to achieve a light, grey map aesthetic. A scale bar is also added at the bottom left corner for reference.
+
+```{r, echo=TRUE, eval= FALSE}
+
+# eval= knitr::is_html_output()
+# Create a leaflet map 
+leaflet_map <- leaflet() |>
+  addProviderTiles("CartoDB.Positron") |>
+  addScaleBar(position = "bottomleft")
+```
+
+Next, we iterate through all the images and convert them into icons using the `makeIcon()` function. Users can control the dimensions of each icon by modifying the `iconWidth` and `iconHeight` arguments. The final step is to add each icon to the Leaflet map using `addMarkers()`. Within the options argument of `addMarkers`, users can fine-tune each glyph's display properties, such as the opacity level. The `label` argument allows users to specify the information they wish to display with the hover-over effect, which is set to display the station ID in this example.
+
+```{r, echo=TRUE, eval= FALSE}
+# Loop through the PNG files and add them to the map
+for (i in seq_along(train_png)) {
+  icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
+  
+  dt <- train |> filter(station_name == df_station[i])
+  leaflet_map <- leaflet_map |>
+    addMarkers(lng = dt$long[1], lat = dt$lat[1], 
+               icon = icon, label = dt$station_name[1],
+               options = markerOptions(opacity = 0.7))
+}
+
+leaflet_map
+```
+
+```{r, fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"}
+include_graphics("figures/leaflet.jpg")
+```
+
+```{r, eval= FALSE, fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"}
+
+# eval = knitr::is_html_output()
+
+zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
+           "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
+           "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
+           "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
+           "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
+           "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
+           "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
+           "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
+           "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
+           "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
+           "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
+           "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
+           "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
+           "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
+           "Armadale",	"Anstey",	"Alphington","Alamein")
+
+train_png <- readRDS("data/train_list.rds")
+
+# Loop through the PNG files and add them to the map
+for (i in seq_along(train_png)) {
+  icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
+
+  dt <- train |> filter(station_name == zone1[i])
+  leaflet_map <- leaflet_map |>
+    addMarkers(lng = dt$long[1],
+               lat = dt$lat[1],
+               icon = icon,
+               label = dt$station_name[1],
+               options = markerOptions(opacity = 0.7))
+}
+
+leaflet_map
+
+
+saveWidget(leaflet_map, file="leaflet_map.html")
+```
+
+The plot visualizes hourly train traffic across various stations in Victoria. Each glyph represents a train station, depicting the fluctuations in train traffic at each location throughout the day.
+
+In the central Melbourne area, especially around major hubs like Melbourne Central Station, there is a significant variation in traffic, with peaks occurring in the middle of the day. This indicates a substantial influx of people, highlighting the central business district (CBD) as the city's primary transit hub.
+
+Some eastern and southeastern train stations exhibit pronounced peaks, marking them as key transit corridors for residents commuting into the city center. These stations are situated along major rail lines, such as the `Cranbourne/Pakenham` and `Lilydale/Belgrave` lines, which cater to large suburban populations.
+
+Moving away from the city center and major rail lines, the glyphs illustrate smaller peaks and greater fluctuations in traffic levels. This suggests that train services are either less frequent or utilized in the outer suburbs compared to the central areas.
+
+### Daily train passenger variations in Melbourne City LGA
+
+```{r, eval=FALSE, echo=TRUE}
+weekday <- station |>
+  group_by(station_name) |>
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = hour, y_minor = min_weekday,
+             yend_minor = max_weekday,
+             color = services, fill = services)) +
+  add_glyph_boxes() +
+  add_ref_lines() +
+  geom_glyph_segment(global_rescale = FALSE) +
+  theme_glyph() +
+  labs(title = "Weekday Patronage") +
+  theme_glyph() 
+
+
+weekend <- station |>
+  group_by(station_name) |>
+  ggplot(aes(x_major = long, y_major = lat,
+             x_minor = hour, y_minor = min_weekend,
+             yend_minor = max_weekend,
+             fill = services, color = services)) +
+  add_glyph_boxes() +
+  add_ref_lines() +
+  geom_glyph_segment(global_rescale = FALSE) +
+  theme_glyph() +
+  labs(title = "Weekday Patronage") +
+  theme_glyph() 
+```
+
+```{r, fig.cap="Patronage at various train stations in Melbourne City LGA on weekdays versus weekends. Each glyph is colour-coded by the number of train services at each station. Additional code is required to construct the base map and customize the plot further. The plot illustrates the behavioral patterns of train patrons, showing high demand during rush hours on weekdays and consistent, elevated demand throughout the weekend."}
+include_graphics("figures/weekend_weekday.png")
+```
+
+The plot provides insightful observations into train service traffic within the Melbourne City LGA, emphasizing distinctions between weekday and weekend patronage. A significant volume of train services is apparent in the city loop, where major connecting hubs such as Flinders Street Station are situated. These stations are depicted with darker shades of brown, indicating up to 20 services, starkly contrasting with the lighter color gradients that signify lower train services.
+
+The analysis further reveals a discrepancy in traffic between weekdays and weekends. For the majority of the train stations, there is a larger variation in patronage during the weekend compared to weekdays. This pattern is consistent across all stations, regardless of the number of train lines each station accommodates. Additionally, there are less pronounced peaks during the weekends, as there is high but consistent traffic throughout the day. In contrast, weekdays see significant spikes during rush hours due to large numbers of people boarding trains in the morning and evening for school and work, with fewer patrons in between the peaks. This trend underscores the reliance on public transport during certain times of the day and could be pivotal for future decisions regarding scheduling and resource allocation within the transit system.
