@@ -129,33 +129,59 @@ Each layer can be plotted independently, and the package supports the creation o
 In addition to these two functions, `sugarglider` offers several other features that enhance the aesthetic and interpretability of glyph maps. The `add_ref_box()` function introduces reference boxes that visually frame individual glyphs, helping to define boundaries and distinguish glyphs from each other. The `add_ref_line()` function draws a horizontal midpoint for each glyph, facilitating comparisons across data points and serves as visual anchor to reduce perceptual distortion and improve the accuracy of interpreting glyph maps. The `add_glyph_legend()` function allows users to display an enlarged version of a randomly chosen glyph in the bottom-left corner of the panel, enabling users to visualize the data range. Lastly, the `theme_glyph()` function provides a customized theme for glyph maps, built on top of `theme_map()` from `ggthemes`. It adjusts the plot's appearance, including the legend position, text styles, and background settings, to create a clean, visually consistent layout for glyph maps.
 
 ```{r, eval = FALSE, echo=TRUE}
-# Ribbon glyph
-vic_temp |>
-   ggplot(aes(x_major = long,
-              y_major = lat,
-              x_minor = month,
-              ymin_minor = tmin,
-              ymax_minor = tmax)) +
-  add_glyph_boxes() +
-  add_ref_lines() +
-  geom_glyph_ribbon() +
-  theme_glyph()
+# Define a color palette
+color_palette <- c("deepskyblue4", "coral3")
 
+# Ribbon glyph
+p1 <- vic_temp |>
+  ggplot(aes(x_major = long,
+             y_major = lat,
+             x_minor = month,
+             ymin_minor = tmin,
+             ymax_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+          fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[1]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[1]) +
+  geom_glyph_ribbon(width = rel(2.5), height = rel(1.5),
+                    color = color_palette[1], fill = color_palette[1]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_ribbon()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[1],
+                             family  = "mono"))
 
 
 # Segment glyph
-vic_temp |>
-   ggplot(aes(x_major = long,
-              y_major = lat,
-              x_minor = month,
-              y_minor = tmin,
-              yend_minor = tmax)) +
-  add_glyph_boxes() +
-  add_ref_lines() +
-  geom_glyph_segment() +
-  theme_glyph()
+p2 <- vic_temp |>
+  ggplot(aes(x_major = long,
+             y_major = lat,
+             x_minor = month,
+             y_minor = tmin,
+             yend_minor = tmax)) +
+  geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+          fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+  # Customize the size of each glyph box using the width and height parameters.
+  add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+                  color = color_palette[2]) +
+  add_ref_lines(width = rel(2.5), height = rel(1.5),
+                color = color_palette[2]) +
+  geom_glyph_segment(width = rel(2.5), height = rel(1.5),
+                     color = color_palette[2]) +
+  # Theme and aesthetic
+  theme_glyph() +
+  labs(title = "geom_glyph_segment()") +
+  theme(plot.title = element_text(hjust = 0.5),
+        title = element_text(color = color_palette[2]))
+
+grid.arrange(p1, p2, ncol = 2)
 ```
-```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."}
+
+```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot."}
 
 include_graphics("figures/ribbon_segment.png")
 ```
