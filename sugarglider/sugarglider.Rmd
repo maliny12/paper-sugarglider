@@ -221,14 +221,15 @@ Options within the `sugarglider` package allow you to tailor the behavior of you
 
 `sugarglider` also offers a variety of customizable features to enhance the flexibility and precision of visualizations. For example, it facilitates the scaling of minor values within the glyph along the x and y axes. Users can specify their rescale function by replacing *"identity"* with a custom function in *x_scale* and *y_scale*. Suppose a user wishes to modify the rescaling function on only one axis. In that case, they can replace the value of the corresponding parameter with their chosen function and retain "identity" for the other. In this package, "identity" rescales the minor axes to an interval of [-1,1]. The impact of rescaling on glyphs and its implications for visual interpretation will be thoroughly discussed in the upcoming section.
 
-Additionally, the width and height of the glyphs are adjustable, allowing users to modify the appearance of each glyph to match the dimensions and scaling of the data being visualized. These customization options ensure that `sugarglider` can adapt to a broad range of data types and requirements, making it a versatile tool for seasonal spatiotemporal data visualization.
+Additionally, the *width* and *height* of glyphs are fully adjustable, allowing users to customise their appearance to suit the dimensions and scale of the data being visualised. By default, both the *width* and *height* are determined by the smallest distance between two consecutive coordinates. Depending on the proximity of locations, this default behaviour may produce glyphs that are either too small or too large. Users can therefore override the default values by specifying the *width* and *height* arguments to achieve an appropriate glyph size. An example is shown in Figure 2, where the glyph dimensions were customised using these arguments in the `add_glyph_box()` function. For high-density datasets, users may also choose to display only a subset of locations or combine sugarglider with leaflet to create an interactive map that allows all locations to be displayed. These customisation options enable sugarglider to adapt to a wide range of datasets and visualisation requirements, making it a versatile tool for seasonal spatiotemporal data visualisation.
+
 
 |Option          | Default      | Description
 |--------------- | ------------ | ------------------------------------------------
 | `x_scale`         | `"identity"`         | This function scales each set of minor values within a grid cell along the x-dimension.
 |`y_scale`      | `"identity"`          | This function scales each set of minor values within a grid cell along the y-dimension.
-|`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method. 
-|`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio. This default behavior can be freely overwritten using the argument.
+|`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method. This default behaviour can be freely overridden by specifying a custom value.
+|`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio. This default behaviour can be freely overridden by specifying a custom value.
 |`global_rescale`      | `TRUE`        | Determines whether rescaling is applied globally across all glyphs or individually for each glyph
 
 ## Data structure 
@@ -428,7 +429,7 @@ include_graphics("figures/hist_temp.png")
 
 To further improve map readability, the `add_geom_legend()` function integrates an enlarged version of one of the glyphs in the bottom left corner of the plot. This legend helps users interpret the data scale more effectively.
 
-In the example below, a ribbon glyph map is created using geom_glyph_ribbon() and overlaid on a base map to depict daily temperature variations across Australian weather stations. A legend is added via `add_glyph_legend()`, allowing users to easily interpret the range of daily temperature values based on a randomly selected weather station. Since the legend data is drawn from a single, randomly chosen station, it is essential to set a seed for reproducibility to ensure consistent results.
+In the example below, a ribbon glyph map is created using `geom_glyph_ribbon()` and overlaid on a base map to depict daily temperature variations across Australian weather stations. A legend is added via `add_glyph_legend()`, allowing users to easily interpret the range of daily temperature values based on a randomly selected weather station. Since the legend data is drawn from a single, randomly chosen station, it is essential to set a seed for reproducibility to ensure consistent results.
 
 ```{r, echo=TRUE, eval=FALSE}
 set.seed(28493)
