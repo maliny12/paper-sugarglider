@@ -132,6 +132,10 @@ In addition to these two functions, `sugarglider` offers several other features 
 # Define a color palette
 color_palette <- c("deepskyblue4", "coral3")
 
+# Filter the data to three weather stations
+vic_temp <- aus_temp |>
+  filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143"))
+
 # Ribbon glyph
 p1 <- vic_temp |>
   ggplot(aes(x_major = long,
@@ -181,7 +185,7 @@ p2 <- vic_temp |>
 grid.arrange(p1, p2, ncol = 2)
 ```
 
-```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot."}
+```{r comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. This example is based on the aus_temp dataset included in the sugarglider package. The size of each glyph was customised using the width and height arguments in the add_glyph_boxes() function."}
 
 include_graphics("figures/ribbon_segment.png")
 ```
@@ -221,7 +225,7 @@ Additionally, the width and height of the glyphs are adjustable, allowing users 
 |--------------- | ------------ | ------------------------------------------------
 | `x_scale`         | `"identity"`         | This function scales each set of minor values within a grid cell along the x-dimension.
 |`y_scale`      | `"identity"`          | This function scales each set of minor values within a grid cell along the y-dimension.
-|`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method.
+|`width`         | `"default"`          |  The width of each glyph. The `default` is set to the smallest distance between two consecutive coordinates, converted from meters to degrees of latitude using the Haversine method. 
 |`height`     | `"default"`     | The height of each glyph. The `default` is calculated using the ratio (1:1.618) relative to the `width`, to maintain a consistent aspect ratio. This default behavior can be freely overwritten using the argument.
 |`global_rescale`      | `TRUE`        | Determines whether rescaling is applied globally across all glyphs or individually for each glyph
 
