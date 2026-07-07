@@ -324,7 +324,6 @@ include_graphics("figures/global_rescale.png")
 
 ```
 
-
 The rescaling process in `sugarglider` involves several steps. First, the function checks for custom scaling based on the `x_scale` and `y_scale` parameters. It then groups the data based on the designated grouping variable to ensure each glyph is drawn as a distinct path. If `global_rescale` is set to *TRUE*, the data is ungrouped before rescaling the minor axes, ensuring consistent scaling across all glyphs. Conversely, if `global_rescale` is set to *FALSE*, the data remains grouped, resulting in local scaling for each glyph.
 
 For both `geom_glyph_ribbon()` and `geom_glyph_segment()`, rescaling is applied separately to the `ymin_minor` and `ymax_minor` values or the `y_minor` and `yend_minor` values, respectively. This ensures that the lower and upper bounds are adjusted independently to fit within the specified scale, maintaining accuracy in the rescaled value.
@@ -630,8 +629,17 @@ This paper introduces the R package `sugarglider`, designed to create glyph maps
 
 Two potential directions for future development include handling different data types and improving the handling of glyph overlap. Currently, `sugarglider` expects data in a tidy format, but expanding its functionality to work with lists of vectors or matrices would enhance its usability. Additionally, static maps can become overcrowded when too many glyphs are plotted, making it difficult to interpret the visualizations. A possible solution is to collapse overlapping glyphs into a single glyph, with an accompanying data summary for all the collapsed glyphs. Another approach is to repel glyphs away from each other, to prevent overlap. These improvements would increase the flexibility and scalability of `sugarglider` for a broader range of data visualization tasks.
 
-# Acknowledgements
+## Acknowledgements
 
 This work is funded by Google Summer of Code in affiliation with the R Project for Statistical Computing. This article is created using the R packages `knitr` (@knitr) and `rjtools` (@rjtools). The source code for reproducing this paper is available in the supplementary files and also on Github at https://github.com/maliny12/paper-sugarglider. Additionally, the `sugarglider` package is available on CRAN, with its source code accessible at  https://github.com/maliny12/sugarglider . 
+
+## CRAN Packages Dependencies
+
+|Type          | Dependency      
+|------------ | ------------ 
+|Imports          |  [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html), [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html), [ggplotify](https://cran.r-project.org/web/packages/ggplotify/index.html), [ggthemes](https://cran.r-project.org/web/packages/ggthemes/index.html) 
+|Suggests          | [cubble](https://cran.r-project.org/web/packages/cubble/index.html), [testthat](https://cran.r-project.org/web/packages/testthat/index.html), [tidyr](https://cran.r-project.org/web/packages/tidyr/index.html), grid, [lubridate](https://cran.r-project.org/web/packages/lubridate/index.html), [knitr](https://cran.r-project.org/web/packages/knitr/index.html), [rmarkdown](https://cran.r-project.org/web/packages/rmarkdown/index.html), [gridExtra](https://cran.r-project.org/web/packages/gridExtra/index.html), [ozmaps](https://cran.r-project.org/web/packages/ozmaps/index.html), [sf](https://cran.r-project.org/web/packages/sf/index.html), [tidyverse](https://cran.r-project.org/web/packages/tidyverse/index.html), [viridis](https://cran.r-project.org/web/packages/viridis/index.html), [vdiffr](https://cran.r-project.org/web/packages/vdiffr/index.html), [kableExtra](https://cran.r-project.org/web/packages/kableExtra/index.html), [ggiraph](https://cran.r-project.org/web/packages/ggiraph/index.html), [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html), [httr](https://cran.r-project.org/web/packages/httr/index.html), [usmap](https://cran.r-project.org/web/packages/usmap/index.html), [geosphere](https://cran.r-project.org/web/packages/geosphere/index.html), [purrr](https://cran.r-project.org/web/packages/purrr/index.html)
+
+ 
 
 
