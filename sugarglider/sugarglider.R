@@ -31,33 +31,63 @@ include_graphics("figures/glyphmap-layers.png")
 
 
 ## ----eval = FALSE, echo=TRUE--------------------------------------------------
-#> # Ribbon glyph
-#> vic_temp |>
-#>    ggplot(aes(x_major = long,
-#>               y_major = lat,
-#>               x_minor = month,
-#>               ymin_minor = tmin,
-#>               ymax_minor = tmax)) +
-#>   add_glyph_boxes() +
-#>   add_ref_lines() +
-#>   geom_glyph_ribbon() +
-#>   theme_glyph()
+#> # Define a color palette
+#> color_palette <- c("deepskyblue4", "coral3")
 #> 
+#> # Filter the data to three weather stations
+#> vic_temp <- aus_temp |>
+#>   filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143"))
+#> 
+#> # Ribbon glyph
+#> p1 <- vic_temp |>
+#>   ggplot(aes(x_major = long,
+#>              y_major = lat,
+#>              x_minor = month,
+#>              ymin_minor = tmin,
+#>              ymax_minor = tmax)) +
+#>   geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+#>           fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+#>   # Customize the size of each glyph box using the width and height parameters.
+#>   add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+#>                   color = color_palette[1]) +
+#>   add_ref_lines(width = rel(2.5), height = rel(1.5),
+#>                 color = color_palette[1]) +
+#>   geom_glyph_ribbon(width = rel(2.5), height = rel(1.5),
+#>                     color = color_palette[1], fill = color_palette[1]) +
+#>   # Theme and aesthetic
+#>   theme_glyph() +
+#>   labs(title = "geom_glyph_ribbon()") +
+#>   theme(plot.title = element_text(hjust = 0.5),
+#>         title = element_text(color = color_palette[1],
+#>                              family  = "mono"))
 #> 
 #> 
 #> # Segment glyph
-#> vic_temp |>
-#>    ggplot(aes(x_major = long,
-#>               y_major = lat,
-#>               x_minor = month,
-#>               y_minor = tmin,
-#>               yend_minor = tmax)) +
-#>   add_glyph_boxes() +
-#>   add_ref_lines() +
-#>   geom_glyph_segment() +
-#>   theme_glyph()
+#> p2 <- vic_temp |>
+#>   ggplot(aes(x_major = long,
+#>              y_major = lat,
+#>              x_minor = month,
+#>              y_minor = tmin,
+#>              yend_minor = tmax)) +
+#>   geom_sf(data = abs_ste |> filter(NAME == "Victoria"),
+#>           fill = "antiquewhite", color = "white", inherit.aes = FALSE)  +
+#>   # Customize the size of each glyph box using the width and height parameters.
+#>   add_glyph_boxes(width = rel(2.5), height = rel(1.5),
+#>                   color = color_palette[2]) +
+#>   add_ref_lines(width = rel(2.5), height = rel(1.5),
+#>                 color = color_palette[2]) +
+#>   geom_glyph_segment(width = rel(2.5), height = rel(1.5),
+#>                      color = color_palette[2]) +
+#>   # Theme and aesthetic
+#>   theme_glyph() +
+#>   labs(title = "geom_glyph_segment()") +
+#>   theme(plot.title = element_text(hjust = 0.5),
+#>         title = element_text(color = color_palette[2]))
+#> 
+#> grid.arrange(p1, p2, ncol = 2)
 
-## ----comparisonPlot, fig.cap = "A comparison between ribbon and segment glyph maps. Glyph boxes and reference lines have been added to frame each glyph and introduce a line that divides each glyph midway, helping users make inferences about the plot. Additional coding is necessary to create the base map and adjust the width and height of each glyph."----
+
+## ----comparisonPlot, fig.cap = "Comparison of ribbon and segment glyph maps using the dataset from the `sugarglider` package. Glyph boxes and reference lines are added to improve interpretation of the glyph structure. Glyph dimensions are customised using the width and height arguments."----
 
 include_graphics("figures/ribbon_segment.png")
 
@@ -176,6 +206,10 @@ include_graphics("figures/temp_var.png")
 include_graphics("figures/prcp_temp.png")
 
 
+## ----echo = TRUE--------------------------------------------------------------
+glimpse(historical_temp)
+
+
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------
 #> historical_temp |>
 #>   filter(id %in% c("ASN00026021", "ASN00085291", "ASN00084143")) |>
@@ -213,96 +247,8 @@ include_graphics("figures/hist_temp.png")
 include_graphics("figures/legend_glyph.png")
 
 
-## ----eval = FALSE, echo=TRUE--------------------------------------------------
-#> # Generate a list of unique train stations
-#> df_station <- train$station_name |> unique()
-#> 
-#> # Generate PNG of all the ribbon glyph
-#> purrr::map(1:length(df_station), function(i) {
-#>   dt <- train |> filter(station_name == df_station[i])
-#>   p <- dt |>
-#>   ggplot(aes(x_major = long, y_major = lat,
-#>                    x_minor = hour, ymin_minor = min_weekday,
-#>                    ymax_minor = max_weekday)) +
-#>     add_glyph_boxes() +
-#>     add_ref_lines() +
-#>     geom_glyph_ribbon() +
-#>     theme_void()
-#> 
-#>   file_path <- paste0("figures/glyph_", df_station[i], ".png")
-#>   ggsave(file_path)
-#>   return(file_path)
-#>   }) -> train_png
-#> 
-
-
-## ----echo=TRUE, eval= FALSE---------------------------------------------------
-#> 
-#> # eval= knitr::is_html_output()
-#> # Create a leaflet map
-#> leaflet_map <- leaflet() |>
-#>   addProviderTiles("CartoDB.Positron") |>
-#>   addScaleBar(position = "bottomleft")
-
-
-## ----echo=TRUE, eval= FALSE---------------------------------------------------
-#> # Loop through the PNG files and add them to the map
-#> for (i in seq_along(train_png)) {
-#>   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
-#> 
-#>   dt <- train |> filter(station_name == df_station[i])
-#>   leaflet_map <- leaflet_map |>
-#>     addMarkers(lng = dt$long[1], lat = dt$lat[1],
-#>                icon = icon, label = dt$station_name[1],
-#>                options = markerOptions(opacity = 0.7))
-#> }
-#> 
-#> leaflet_map
-
-
 ## ----fig.cap="Screenshot of the hourly train station traffic in Melbourne. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours)"----
 include_graphics("figures/leaflet.jpg")
-
-
-## ----eval= FALSE, fig.cap="Interactive glyph maps display hourly train station traffic in Melbourne. To enhance rendering performance, only Zone 1 train stations are included in this visualization. Each glyph represents hourly traffic, with peaks occurring during typical commuting hours (morning and evening rush hours).", out.width="100%"----
-#> 
-#> # eval = knitr::is_html_output()
-#> 
-#> zone1 <- c("Seaford", "Yarraville", "Windsor"	,"Willison",	"Williamstown Beach",
-#>            "Williamstown",	"Westgarth", "West Richmond",	"West Footscray",	"Victoria Park",
-#>            "Tottenham",	"Tooronga",	"Toorak",	"Thornbury",	"Strathmore",	"Spotswood",
-#>            "Southern Cross",	"South Yarra",	"South Kensington",	"Showgrounds",	"Seddon",
-#>            "Seaholme",	"Rushall",	"Royal Park",	"Riversdale",	"Ripponlea",	"Richmond",
-#>            "Prahran",	"Parliament",	"Northcote",	"North Williamstown",	"North Richmond",
-#>            "North Melbourne",	"Newport",	"Newmarket",	"Murrumbeena",	"Moreland",	"Moonee Ponds",
-#>            "Middle Footscray",	"Merri",	"Melbourne Central",	"Malvern",	"Macaulay",	"Kooyong",
-#>            "Kensington",	"Jolimont",	"Jewell",	"Heyington",	"Hawthorn", "Hawksburn",	"Hartwell",
-#>            "Glenferrie",	"Glenbervie",	"Glen Iris","Glen Huntly",	"Gardiner",	"Gardenvale",	"Footscray",
-#>            "Flinders Street"	,"Flemington Racecourse",	"Flemington Bridge",	"Flagstaff",	"Fairfield",
-#>            "Essendon"	,"Elsternwick",	"East Richmond",	"East Camberwell",	"Dennis",	"Darebin",	"Croxton",
-#>            "Collingwood",	"Coburg",	"Clifton Hill",	"Caulfield"	,"Carnegie",	"Camberwell",	"Burwood"	,
-#>            "Burnley",	"Brunswick", "Bell Balaclava"	,"Auburn",	"Aspendale",	"Ashburton",	"Ascot Vale",
-#>            "Armadale",	"Anstey",	"Alphington","Alamein")
-#> 
-#> train_png <- readRDS("data/train_list.rds")
-#> 
-#> # Loop through the PNG files and add them to the map
-#> for (i in seq_along(train_png)) {
-#>   icon <- makeIcon(iconUrl = train_png[i], iconWidth = 100, iconHeight = 60)
-#> 
-#>   dt <- train |> filter(station_name == zone1[i])
-#>   leaflet_map <- leaflet_map |>
-#>     addMarkers(lng = dt$long[1],
-#>                lat = dt$lat[1],
-#>                icon = icon,
-#>                label = dt$station_name[1],
-#>                options = markerOptions(opacity = 0.7))
-#> }
-#> 
-#> leaflet_map
-#> 
-#> 
-#> saveWidget(leaflet_map, file="leaflet_map.html")
 
 
 ## ----eval=FALSE, echo=TRUE----------------------------------------------------
