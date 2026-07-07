@@ -242,7 +242,7 @@ include_graphics("figures/hist_temp.png")
 #>   theme_glyph()
 
 
-## ----fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional coding is required for the base map and further theme customization. In this example, the glyphs are uniformly scaled, representing a temperature range from approximately 5.0 to 35.0 degrees Celsius."----
+## ----fig.cap="Temperature Ranges Across Australia with Glyph Legend. Additional coding is required for the base map and further theme customization. In this example, the glyphs are uniformly scaled, representing a temperature range from approximately 5.0 to 35.0 degrees Celsius. Temperature values are stored in tenths of a degree Celsius, following the NOAA data convention."----
 
 include_graphics("figures/legend_glyph.png")
 
