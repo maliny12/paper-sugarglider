@@ -590,7 +590,7 @@ girafe(ggobj = fl)
 
 This visualization shows the range of departing flights from each airport on a map. Each line represents the flight range for a specific airport, with the length showing the variability in flight numbers across different locations. Notably, airports like ATL and ORD generally handle a higher volume of departing flights than airports such as MCO and PHX. All airports exhibit fluctuations throughout the year, with broader flight intervals in the middle of the year and narrower intervals during the holiday season at year-end.
 
-### Flight Pattern Between Western and Eastern Region
+### Flight Pattern Between Western and Southern Region
 
 ```{r, echo=TRUE, eval=FALSE}
 # South Region
