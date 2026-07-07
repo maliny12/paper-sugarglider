@@ -205,7 +205,7 @@ The functions in `sugarglider` expect spatial coordinates as the major axis and 
 |  `ymin_minor`, `ymax_minor`       | Used by `geom_glyph_ribbon()` to establish the lower and upper bounds of the ribbon geometry within each glyph.
 |  `y_minor`, `yend_minor`       | Used by `geom_glyph_segment()` to set the start and end points of the segment geometry within each glyph.
 
-The functions `add_ref_box()`, `add_ref_line()`, and `add_geom_legend()` are compatible with either *ymin_minor*, *ymax_minor*, or *y_minor*, *yend_minor*. Additionally, `sugarglider` introduces several customizable options to tailor the visual aspects further:
+The functions `add_ref_box()`, `add_ref_line()`, and `add_glyph_legend()` are compatible with either *ymin_minor*, *ymax_minor*, or *y_minor*, *yend_minor*. Additionally, `sugarglider` introduces several customizable options to tailor the visual aspects further:
 
 |Option          | Default      | Description
 |--------------- | ------------ | ------------------------------------------------
@@ -426,7 +426,7 @@ historical_temp |>
 include_graphics("figures/hist_temp.png")
 ```
 
-To further improve map readability, the `add_geom_legend()` function integrates an enlarged version of one of the glyphs in the bottom left corner of the plot. This legend helps users interpret the data scale more effectively.
+To further improve map readability, the `add_glyph_legend()` function integrates an enlarged version of one of the glyphs in the bottom left corner of the plot. This legend helps users interpret the data scale more effectively.
 
 In the example below, a ribbon glyph map is created using `geom_glyph_ribbon()` and overlaid on a base map to depict daily temperature variations across Australian weather stations. A legend is added via `add_glyph_legend()`, allowing users to easily interpret the range of daily temperature values based on a randomly selected weather station. Since the legend data is drawn from a single, randomly chosen station, it is essential to set a seed for reproducibility to ensure consistent results.
 
