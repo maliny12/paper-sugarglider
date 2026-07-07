@@ -405,7 +405,13 @@ aus_temp |>
 include_graphics("figures/prcp_temp.png")
 ```
 
-To compare temperature trends across different years for specific regions in Victoria, `geom_glyph_ribbon()` offers an effective way to visualize how temperatures have evolved. Each year is distinguished by a different colour, making the trends clear and easy to interpret.
+The following example uses the `historical_temp` dataset included in the `sugarglider package`. This dataset contains aggregated monthly average minimum and maximum temperatures, along with precipitation, for selected Australian weather stations during 2021 and 2022.
+ 
+```{r, echo = TRUE}
+glimpse(historical_temp)
+```
+
+To compare temperature trends across different years for specific regions in Victoria, `geom_glyph_ribbon()` offers an effective way to visualize how temperatures have evolved. Each year is distinguished by a different colour, making the trends clear and easy to interpret. 
 
 ```{r, echo=TRUE, eval=FALSE}
 historical_temp |> 
